@@ -1,0 +1,15 @@
+mongo:
+  client:
+    port: ~
+  database:
+    name: "corobiapolitici"
+    collections:
+      hlasovanie: "NRSR_hlasy"
+      raw: "raw"
+      processed: "processed"
+  logging:
+    level: "INFO"
+    filename: "corobiapolitici.log"
+
+scrape:
+  delay: 0.5
