@@ -14,8 +14,7 @@ class Scraper:
         self.db = db
         self.conf = conf
         if collection is None:
-            name = utils.get_collection_name(self, self.conf, const.CONF_MONGO_RAW)
-            collection = storage.MongoCollection(self.db, name)
+            collection = utils.get_collection(self, self.conf, const.CONF_MONGO_RAW, self.db)
         self.collection = collection
         self.log = logging.getLogger(str(self.__class__).split("'")[1])
         self.base_url = None
@@ -23,7 +22,7 @@ class Scraper:
     def get(self, url):
         try:
             html = get(url).text
-            self.log.info("Content of url %s received.", url)
+            self.log.info("Content of url %r received.", url)
         except RequestException as e:
             self.log.error(e)
         sleep(self.conf[const.CONF_SCRAPE][const.CONF_SCRAPE_DELAY])
@@ -41,12 +40,12 @@ class Scraper:
             url = self.base_url.format(entry_id)
         if not replace:
             if self.collection.exists({const.MONGO_URL: url}):
-                self.log.info("url %s already in the database -- not replacing", url)
+                self.log.info("url %r already in the database -- not replacing", url)
                 return
         html = self.get(url)
         data = {const.MONGO_URL: url, const.MONGO_HTML: html}
         if entry_id is not None:
-            data[const.MONGO_ENTRY_ID] = entry_id
+            data[const.MONGO_ID] = entry_id
         self.collection.update(data, const.MONGO_URL)
 
     def store_all(self, start_id, end_id, replace=False):

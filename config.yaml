@@ -4,12 +4,23 @@ mongo:
   database:
     name: "corobiapolitici"
     collections:
-      hlasovanie: "NRSR_hlasy"
+      hlasovanie: "hlasovanie"
       raw: "raw"
-      processed: "processed"
-  logging:
-    level: "INFO"
-    filename: "corobiapolitici.log"
+      parsed: "parsed" 
+
+      
+logging:
+  level: "INFO"
+  filename: "corobiapolitici.log"
 
 scrape:
   delay: 0.5
+
+neo4j:
+  client:
+    uri: bolt://localhost:11001
+    auth:
+      - "neo4j"
+      - "blabla"
+  temp_csv: "C:/Users/dcsiba/Documents/temp_neo4j.csv"
+  periodic_commit: 10000

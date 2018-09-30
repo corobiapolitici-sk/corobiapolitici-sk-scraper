@@ -1,20 +1,9 @@
 # Mongo
+MONGO_ID = "id"
 MONGO_TIMESTAMP = "insertTime"
 MONGO_URL = "url"
 MONGO_HTML = "html"
-MONGO_ENTRY_ID = "entry_id"
-MONGO_TIME = "time"
-MONGO_NUM = "num"
-MONGO_TITLE = "title"
-MONGO_RESULT = "result"
-MONGO_SUMMARY = "summary"
-MONGO_INDIVIDUAL = "individual"
-MONGO_CLUB = "club"
-MONGO_VOTE = "vote"
-MONGO_NAME = "name"
-
-# Logging
-LOGGING = "logging"
+MONGO_UNIQUE_ID = "_id"
 
 # Base URLs
 URL_HLASOVANIA = "https://www.nrsr.sk/web/Default.aspx?sid=schodze/hlasovanie/hlasklub&ID={}"
@@ -33,8 +22,89 @@ CONF_MONGO_DATABASE_NAME = "name"
 CONF_MONGO_COLLECTION = "collections"
 CONF_MONGO_HLASOVANIE = "hlasovanie"
 CONF_MONGO_RAW = "raw"
-CONF_MONGO_PROCESSED = "processed"
+CONF_MONGO_NODES = "nodes"
+CONF_MONGO_EDGES = "edges"
+CONF_MONGO_PARSED = "parsed"
+CONF_NEO4J = "neo4j"
+CONF_NEO4J_CLIENT = "client"
+CONF_NEO4J_AUTH = "auth"
+CONF_NEO4J_URI = "uri"
+CONF_NEO4J_TEMP_CSV = "temp_csv"
+CONF_NEO4J_PERIODIC_COMMIT = "periodic_commit"
+CONF_LOGGING = "logging"
+CONF_LOGGING_FILENAME = "filename"
 
 # Process
-PROCESS_ERROR_NOT_FOUND = "We are sorry, but an unexpected error occured on the website."
-PROCESS_POSLANEC_ID = "PoslanecID"
+PARSE_ERROR_NOT_FOUND = "We are sorry, but an unexpected error occured on the website."
+
+# neo4j
+NEO4J_INTEGER = "ToInteger({})"
+NEO4J_STRING = "{}"
+NEO4J_DATETIME = "datetime({})"
+
+NEO4J_OBJECT_TYPE = "object_type"
+NEO4J_NODE_NAME = "node_name"
+NEO4J_BEGINNING_ID = "beginning_id"
+NEO4J_ENDING_ID = "ending_id"
+NEO4J_BEGINNING_NAME = "beginning_name"
+NEO4J_ENDING_NAME = "ending_name"
+NEO4J_EDGE_NAME = "edge_name"
+NEO4J_OBJECT_NODE = "node"
+NEO4J_OBJECT_EDGE = "edge"
+
+# Node / edge names
+
+NODE_NAME_KLUB = "Klub"
+NODE_NAME_POSLANEC = "Poslanec"
+NODE_NAME_HLASOVANIE = "Hlasovanie"
+
+EDGE_NAME_CLEN = "Člen"
+
+##########
+# FIELDS #
+##########
+
+HLASOVANIE_CAS = "časHlasovania"
+HLASOVANIE_CISLO = "čísloHlasovania"
+HLASOVANIE_OBDOBIE = "čísloObdobia"
+HLASOVANIE_IDZAKZBOR = "idZakZbor"
+HLASOVANIE_SCHODZA = "čísloSchôdze"
+HLASOVANIE_NAZOV = "názovHlasovania"
+HLASOVANIE_VYSLEDOK = "výsledokHlasovania"
+HLASOVANIE_INDIVIDUALNE = "individuálne"
+HLASOVANIE_KLUB = "klub"
+HLASOVANIE_HLAS = "hlas"
+HLASOVANIE_CELE_MENO = "celéMeno"
+HLASOVANIE_SURHN_PRITOMNI = "súhrnPrítomní"
+HLASOVANIE_SURHN_HLASUJUCICH = "súhrnHlasujúcich"
+HLASOVANIE_SURHN_ZA = "súhrnZa"
+HLASOVANIE_SURHN_PROTI = "súhrnProti"
+HLASOVANIE_SURHN_ZDRZALO = "súhrnZdržalo"
+HLASOVANIE_SURHN_NEHLASOVALO = "súhrnNehlasovalo"
+HLASOVANIE_SUHRN_NEPRITOMNI = "súhrnNeprítomní"
+HLASOVANIE_SUHRN_DICT = {
+    "Prítomní": HLASOVANIE_SURHN_PRITOMNI,
+    "Hlasujúcich": HLASOVANIE_SURHN_HLASUJUCICH,
+    "[Z] Za hlasovalo": HLASOVANIE_SURHN_ZA,
+    "[P] Proti hlasovalo": HLASOVANIE_SURHN_PROTI,
+    "[?] Zdržalo sa hlasovania": HLASOVANIE_SURHN_ZDRZALO,
+    "[N] Nehlasovalo": HLASOVANIE_SURHN_NEHLASOVALO,
+    "[0] Neprítomní": HLASOVANIE_SUHRN_NEPRITOMNI
+}
+HLASOVANIE_POSLANEC_DICT = {
+    "PoslanecID": MONGO_ID,
+    "CisObdobia": HLASOVANIE_OBDOBIE
+}
+HLASOVANIE_URL_DICT = {
+    "CisObdobia": HLASOVANIE_OBDOBIE,
+    "CisSchodze": HLASOVANIE_SCHODZA,
+    "ZakZborID": HLASOVANIE_IDZAKZBOR
+}
+
+POSLANEC_PRIEZVISKO = "priezvisko"
+POSLANEC_MENO = "meno"
+
+KLUB_NAZOV = "názov"
+KLUB_POCET = "početPoslancov"
+
+CLEN_NAPOSLEDY = "časNaposledy"
