@@ -34,6 +34,9 @@ CONF_NEO4J_PERIODIC_COMMIT = "periodic_commit"
 CONF_LOGGING = "logging"
 CONF_LOGGING_FILENAME = "filename"
 
+# Scrape
+SCRAPE_MAX_ID_POSLANEC = 1000
+
 # Process
 PARSE_ERROR_NOT_FOUND = "We are sorry, but an unexpected error occured on the website."
 
@@ -59,6 +62,7 @@ NODE_NAME_POSLANEC = "Poslanec"
 NODE_NAME_HLASOVANIE = "Hlasovanie"
 
 EDGE_NAME_CLEN = "Člen"
+EDGE_NAME_HLASOVAL = "Hlasoval"
 
 ##########
 # FIELDS #
@@ -103,8 +107,28 @@ HLASOVANIE_URL_DICT = {
 
 POSLANEC_PRIEZVISKO = "priezvisko"
 POSLANEC_MENO = "meno"
+POSLANEC_CLENSTVO = "členstvo"
+POSLANEC_FOTO = "fotografia"
+POSLANEC_NARODENY = "narodený(á)"
 
 KLUB_NAZOV = "názov"
 KLUB_POCET = "početPoslancov"
 
 CLEN_NAPOSLEDY = "časNaposledy"
+
+HLASOVAL_HLAS = "hlas"
+HLASOVAL_KLUB = "klub"
+HLASOVAL_ZA = "Za"
+HLASOVAL_PROTI = "Proti"
+HLASOVAL_ZDRZAL = "Zdržal sa"
+HLASOVAL_NEPRITOMNY = "Neprítomný"
+HLASOVAL_NEHLASOVAL = "Nehlasoval"
+HLASOVAL_NEPLATNY = "Neplatný"
+HLASOVAL_HLAS_DICT = {
+    "[Z]": HLASOVAL_ZA,
+    "[P]": HLASOVAL_PROTI,
+    "[?]": HLASOVAL_ZDRZAL,
+    "[N]": HLASOVAL_NEHLASOVAL,
+    "[0]": HLASOVAL_NEPRITOMNY,
+    "[-]": HLASOVAL_NEPLATNY
+}

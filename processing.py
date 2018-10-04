@@ -148,6 +148,26 @@ class EdgesPoslanecKlubClen(Edges):
                 poslanci[poslanec_id] = values
         for entry in poslanci.values():
             yield entry
-        
+
+class EdgesPoslanecHlasovanieHlasoval(Edges):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.edge_name = const.EDGE_NAME_HLASOVAL
+        self.beginning_name = const.NODE_NAME_POSLANEC
+        self.ending_name = const.NODE_NAME_HLASOVANIE
+
+    def entry_generator(self):
+        source_collection = utils.get_collection(
+            const.CONF_MONGO_HLASOVANIE, self.conf, const.CONF_MONGO_PARSED, self.db
+        )
+        for entry in source_collection.iterate_all():
+            for poslanec_id, poslanec in entry[const.HLASOVANIE_INDIVIDUALNE].items():
+                hlas = {
+                    const.NEO4J_BEGINNING_ID: int(poslanec_id),
+                    const.NEO4J_ENDING_ID: entry[const.MONGO_ID],
+                    const.HLASOVAL_HLAS: const.HLASOVAL_HLAS_DICT[poslanec[const.HLASOVANIE_HLAS]],
+                    const.HLASOVAL_KLUB: utils.parse_klub(poslanec[const.HLASOVANIE_KLUB])
+                }
+                yield hlas
 
 

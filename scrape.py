@@ -48,20 +48,6 @@ class Scraper:
             data[const.MONGO_ID] = entry_id
         self.collection.update(data, const.MONGO_URL)
 
-    def store_all(self, start_id, end_id, replace=False):
-        self.log.info("Starting to scrape ids between %d and %d", start_id, end_id)
-        for i in range(start_id, end_id + 1):
-            self.store_raw_html(entry_id=i, replace=replace)
-            self.log.info("Scraping total progress: %d / %d",
-                i - start_id + 1, end_id - start_id + 1)
-        self.log.info("Scraping finished!")
-
-
-class Hlasovanie(Scraper):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.base_url = const.URL_HLASOVANIA
-
     def store_all(self, start_id=None, end_id=None, replace=False):
         if start_id is None or end_id is None:
             default_start_id, default_end_id = self.get_start_end_id()
@@ -71,7 +57,21 @@ class Hlasovanie(Scraper):
             if end_id is None:
                 end_id = default_end_id
                 self.log.info("end_id set to default value: %d", start_id)
-        super().store_all(start_id, end_id, replace=replace)
+        self.log.info("Starting to scrape ids between %d and %d", start_id, end_id)
+        for i in range(start_id, end_id + 1):
+            self.store_raw_html(entry_id=i, replace=replace)
+            self.log.info("Scraping total progress: %d / %d",
+                i - start_id + 1, end_id - start_id + 1)
+        self.log.info("Scraping finished!")
+
+    def get_start_end_id(self):
+        return 0, 0
+
+
+class Hlasovanie(Scraper):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.base_url = const.URL_HLASOVANIA
 
     def get_start_end_id(self):
         soup = self.get_soup(const.URL_NRSR_SCHODZE)
@@ -93,14 +93,17 @@ class Hlasovanie(Scraper):
         return [first, last]
 
 
-class Zakony(Scraper):
-    def __init__(self, collection):
-        super().__init__(collection)
+class Zakon(Scraper):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.base_url = const.URL_ZAKONY
 
 
-class Poslanci(Scraper):
-    def __init__(self, collection):
-        super().__init__(collection)
+class Poslanec(Scraper):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.base_url = const.URL_POSLANCI
+
+    def get_start_end_id(self):
+            return [1, const.SCRAPE_MAX_ID_POSLANEC]
 

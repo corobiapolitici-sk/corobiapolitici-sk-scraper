@@ -19,7 +19,6 @@ class HTMLParser:
                 self, self.conf, const.CONF_MONGO_PARSED, self.db)
         self.source_collection = source_collection
         self.target_collection = target_collection
-        self.base_url = ""
         self.log = logging.getLogger(str(self.__class__).split("'")[1])
 
     def get(self, entry_id):
@@ -68,10 +67,6 @@ class HTMLParser:
 
 
 class Hlasovanie(HTMLParser):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.base_url = const.URL_HLASOVANIA
-
     def extract_structure(self, entry):
         soup = BeautifulSoup(entry.pop(const.MONGO_HTML), features="lxml")
         try:
@@ -114,5 +109,27 @@ class Hlasovanie(HTMLParser):
                     poslanec_id = poslanec.pop(const.MONGO_ID)
                     entry[const.HLASOVANIE_INDIVIDUALNE][str(poslanec_id)] = poslanec
         return entry
-        
+
+class Poslanec(HTMLParser):
+    def extract_structure(self, entry):
+        soup = BeautifulSoup(entry.pop(const.MONGO_HTML), features="lxml")
+        personal = soup.find("div", attrs={"class":"mp_personal_data"})
+        for div in personal("div"):
+            if div.find("strong") is not None:
+                entry[div.find("strong").text.strip().lower()] = div.find("span").text.strip()
+        entry[const.POSLANEC_NARODENY] = datetime.strptime(
+            entry[const.POSLANEC_NARODENY], "%d. %m. %Y")
+        clenstvo = soup.find(
+            "span", attrs={"id": "_sectionLayoutContainer_ctl01_ctlClenstvoLabel"})
+        entry[const.POSLANEC_CLENSTVO] = {}
+        for li in clenstvo.parent.parent("li"):
+            text = li.text
+            tokens = text.split("(")
+            if len(tokens) == 1:
+                res = ""
+            else:
+                res = tokens[1].split(")")[0].strip().capitalize()
+            entry[const.POSLANEC_CLENSTVO][tokens[0].strip()] = res
+        entry[const.POSLANEC_FOTO] = soup.find("div", attrs={"class": "mp_foto"}).find("img")["src"]
+        return entry
 
