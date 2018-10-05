@@ -34,10 +34,7 @@ def date_converter_csv(s):
         return s 
 
 def parse_klub(s):
-    if "Klub" in s:
-        return s[5:]
-    else:
-        return "Nezaradení"
+    return const.KLUB_DICT.get(s, const.KLUB_NEZARADENI)
 
 def set_up_logging(conf):
     filename = conf.pop(const.CONF_LOGGING_FILENAME)

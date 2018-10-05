@@ -21,6 +21,7 @@ CONF_MONGO_DATABASE = "database"
 CONF_MONGO_DATABASE_NAME = "name"
 CONF_MONGO_COLLECTION = "collections"
 CONF_MONGO_HLASOVANIE = "hlasovanie"
+CONF_MONGO_POSLANEC = "poslanec"
 CONF_MONGO_RAW = "raw"
 CONF_MONGO_NODES = "nodes"
 CONF_MONGO_EDGES = "edges"
@@ -44,6 +45,7 @@ PARSE_ERROR_NOT_FOUND = "We are sorry, but an unexpected error occured on the we
 NEO4J_INTEGER = "ToInteger({})"
 NEO4J_STRING = "{}"
 NEO4J_DATETIME = "datetime({})"
+NEO4J_BOOLEAN = "(CASE {} WHEN \"True\" THEN true ELSE false END)"
 
 NEO4J_OBJECT_TYPE = "object_type"
 NEO4J_NODE_NAME = "node_name"
@@ -55,11 +57,15 @@ NEO4J_EDGE_NAME = "edge_name"
 NEO4J_OBJECT_NODE = "node"
 NEO4J_OBJECT_EDGE = "edge"
 
-# Node / edge names
+# Node names
 
 NODE_NAME_KLUB = "Klub"
 NODE_NAME_POSLANEC = "Poslanec"
 NODE_NAME_HLASOVANIE = "Hlasovanie"
+NODE_NAME_VYBOR = "Výbor"
+NODE_NAME_DELEGACIA = "Delegácia"
+
+# edge names
 
 EDGE_NAME_CLEN = "Člen"
 EDGE_NAME_HLASOVAL = "Hlasoval"
@@ -109,12 +115,80 @@ POSLANEC_PRIEZVISKO = "priezvisko"
 POSLANEC_MENO = "meno"
 POSLANEC_CLENSTVO = "členstvo"
 POSLANEC_FOTO = "fotografia"
-POSLANEC_NARODENY = "narodený(á)"
+POSLANEC_NARODENY = "narodený"
+POSLANEC_KANDIDOVAL = "kandidovalZa"
+POSLANEC_TITUL = "titul"
+POSLANEC_NARODNOST = "národnosť"
+POSLANEC_BYDLISKO = "bydlisko"
+POSLANEC_KRAJ = "kraj"
+POSLANEC_EMAIL = "email"
+POSLANEC_WEB = "web"
+POSLANEC_AKTIVNY = "aktívny"
+POSLANEC_INFO_DICT = {
+    "meno": POSLANEC_MENO,
+    "titul": POSLANEC_TITUL,
+    "priezvisko": POSLANEC_PRIEZVISKO,
+    "kandidoval(a) za": POSLANEC_KANDIDOVAL,
+    "narodený(á)": POSLANEC_NARODENY,
+    "národnosť": POSLANEC_NARODNOST,
+    "bydlisko": POSLANEC_BYDLISKO,
+    "kraj": POSLANEC_KRAJ,
+    "e-mail": POSLANEC_EMAIL,
+    "www": POSLANEC_WEB,
+    "fotografia": POSLANEC_FOTO
+}
 
 KLUB_NAZOV = "názov"
 KLUB_POCET = "početPoslancov"
+KLUB_LSNS = "ĽSNS"
+KLUB_SAS = "SaS"
+KLUB_SMER = "Smer-SD"
+KLUB_SME_RODINA = "SME RODINA"
+KLUB_SNS = "SNS"
+KLUB_OLANO = "OĽANO"
+KLUB_MOST = "MOST-HÍD"
+KLUB_NEZARADENI = "Nezaradení"
+KLUB_DICT = {
+    "Klub Kotleba - Ľudová strana Naše Slovensko": KLUB_LSNS,
+    "Klub ĽS Naše Slovensko": KLUB_LSNS,
+    "Klub MOST - HÍD": KLUB_MOST,
+    "Klub OBYČAJNÍ ĽUDIA a nezávislé osobnosti": KLUB_OLANO,
+    "Klub OĽANO": KLUB_OLANO,
+    "Klub SME RODINA - Boris Kollár": KLUB_SME_RODINA,
+    "Klub SME RODINA": KLUB_SME_RODINA,
+    "Klub SMER - sociálna demokracia": KLUB_SMER,
+    "Klub SMER - SD": KLUB_SMER,
+    "Klub Sloboda a Solidarita": KLUB_SAS,
+    "Klub SaS": KLUB_SAS,
+    "Klub Slovenská národná strana": KLUB_SNS,
+    "Klub SNS": KLUB_SNS
+}
 
 CLEN_NAPOSLEDY = "časNaposledy"
+CLEN_TYP = "typČlenstva"
+CLEN_CLEN = "Člen"
+CLEN_NAHRADNIK = "Náhradník"
+CLEN_PODPREDSEDA = "Podpredseda"
+CLEN_OVEROVATEL = "Overovateľ"
+CLEN_PREDSEDA = "Predseda"
+CLEN_VEDUCI = "Vedúci"
+CLEN_TYP_DICT = {
+    "Člen": CLEN_CLEN,
+    "Členka": CLEN_CLEN,
+    "Podpredseda": CLEN_PODPREDSEDA,
+    "Podpredsedníčka": CLEN_PODPREDSEDA,
+    "Podpredeseda": CLEN_PODPREDSEDA,
+    "Predseda": CLEN_PREDSEDA,
+    "Predsedníčka": CLEN_PREDSEDA,
+    "Overovateľ": CLEN_OVEROVATEL,
+    "Overovateľka": CLEN_OVEROVATEL,
+    "Náhradný člen": CLEN_NAHRADNIK,
+    "Náhradná členka": CLEN_NAHRADNIK,
+    "Náhradník": CLEN_NAHRADNIK,
+    "Náhradníčka": CLEN_NAHRADNIK,
+    "Vedúci": CLEN_VEDUCI,
+    "Vedúca": CLEN_VEDUCI
+}
 
 HLASOVAL_HLAS = "hlas"
 HLASOVAL_KLUB = "klub"

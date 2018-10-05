@@ -116,7 +116,8 @@ class Poslanec(HTMLParser):
         personal = soup.find("div", attrs={"class":"mp_personal_data"})
         for div in personal("div"):
             if div.find("strong") is not None:
-                entry[div.find("strong").text.strip().lower()] = div.find("span").text.strip()
+                key = div.find("strong").text.strip().lower()
+                entry[const.POSLANEC_INFO_DICT[key]] = div.find("span").text.strip()
         entry[const.POSLANEC_NARODENY] = datetime.strptime(
             entry[const.POSLANEC_NARODENY], "%d. %m. %Y")
         clenstvo = soup.find(

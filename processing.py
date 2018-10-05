@@ -71,19 +71,13 @@ class NodesPoslanec(Nodes):
         self.node_name = const.NODE_NAME_POSLANEC
 
     def entry_generator(self):
-        poslanci = {}
         source_collection = utils.get_collection(
-            const.CONF_MONGO_HLASOVANIE, self.conf, const.CONF_MONGO_PARSED, self.db)
+            const.CONF_MONGO_POSLANEC, self.conf, const.CONF_MONGO_PARSED, self.db)
         for entry in source_collection.iterate_all():
-            for poslanec_id, stats in entry[const.HLASOVANIE_INDIVIDUALNE].items():
-                if poslanec_id not in poslanci:
-                    mena = stats[const.HLASOVANIE_CELE_MENO].split(",")
-                    priezvisko, meno = [s.strip() for s in mena]
-                    poslanci[poslanec_id] = {const.POSLANEC_MENO: meno,
-                        const.POSLANEC_PRIEZVISKO: priezvisko}
-        for poslanec_id, entry in poslanci.items():
-            entry[const.MONGO_ID] = int(poslanec_id)
+            del entry[const.POSLANEC_CLENSTVO]
             yield entry
+        
+
 
 class NodesKlub(Nodes):
     def __init__(self, *args):
@@ -103,6 +97,38 @@ class NodesKlub(Nodes):
             val = utils.parse_klub(val)
             entry = {const.MONGO_ID: val, const.KLUB_POCET: int(count)}
             yield entry
+
+class NodesVybor(Nodes):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.node_name = const.NODE_NAME_VYBOR
+
+    def entry_generator(self):
+        source_collection = utils.get_collection(
+            const.CONF_MONGO_POSLANEC, self.conf, const.CONF_MONGO_PARSED, self.db)
+        orgs = set()
+        for entry in source_collection.iterate_all():
+            for org in entry[const.POSLANEC_CLENSTVO]:
+                if const.NODE_NAME_VYBOR.lower() in org.lower():
+                    orgs.add(org)
+        for org in orgs:
+            yield {const.MONGO_ID: org}
+
+class NodesDelegacia(Nodes):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.node_name = const.NODE_NAME_DELEGACIA
+
+    def entry_generator(self):
+        source_collection = utils.get_collection(
+            const.CONF_MONGO_POSLANEC, self.conf, const.CONF_MONGO_PARSED, self.db)
+        orgs = set()
+        for entry in source_collection.iterate_all():
+            for org in entry[const.POSLANEC_CLENSTVO]:
+                if const.NODE_NAME_DELEGACIA.lower() in org.lower():
+                    orgs.add(org)
+        for org in orgs:
+            yield {const.MONGO_ID: org}
 
 #########
 # EDGES #
@@ -131,23 +157,72 @@ class EdgesPoslanecKlubClen(Edges):
 
     def entry_generator(self):
         source_collection = utils.get_collection(
-            const.CONF_MONGO_HLASOVANIE, self.conf, const.CONF_MONGO_PARSED, self.db
+            const.CONF_MONGO_HLASOVANIE, self.conf, const.CONF_MONGO_PARSED, self.db)
+        last_entry = source_collection.get({}, projection=[const.HLASOVANIE_INDIVIDUALNE],
+            sort=[(const.MONGO_ID, -1)])
+        aktivni_ids = [int(i) for i in last_entry[const.HLASOVANIE_INDIVIDUALNE].keys()]
+        source_collection = utils.get_collection(
+            const.CONF_MONGO_POSLANEC, self.conf, const.CONF_MONGO_PARSED, self.db
         )
-        poslanci = {}
         for entry in source_collection.iterate_all():
-            for poslanec_id in entry[const.HLASOVANIE_INDIVIDUALNE]:
-                if poslanec_id in poslanci:
-                    if poslanci[poslanec_id][const.CLEN_NAPOSLEDY] > entry[const.HLASOVANIE_CAS]:
-                        continue
-                values = {
-                    const.NEO4J_BEGINNING_ID: int(poslanec_id),
-                    const.NEO4J_ENDING_ID: utils.parse_klub(entry[const.HLASOVANIE_INDIVIDUALNE][
-                        poslanec_id][const.HLASOVANIE_KLUB]),
-                    const.CLEN_NAPOSLEDY: entry[const.HLASOVANIE_CAS]
+            if entry[const.MONGO_ID] in aktivni_ids:
+                klub = const.KLUB_NEZARADENI
+                typ = const.CLEN_CLEN
+                for org in entry[const.POSLANEC_CLENSTVO]:
+                    if org in const.KLUB_DICT:
+                        klub = const.KLUB_DICT[org]
+                        typ = const.CLEN_TYP_DICT[entry[const.POSLANEC_CLENSTVO][org]]
+                        break
+                result = {
+                    const.NEO4J_BEGINNING_ID: int(entry[const.MONGO_ID]),
+                    const.NEO4J_ENDING_ID: klub,
+                    const.CLEN_TYP: typ
                 }
-                poslanci[poslanec_id] = values
-        for entry in poslanci.values():
-            yield entry
+            yield result
+
+
+class EdgesPoslanecVyborClen(Edges):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.edge_name = const.EDGE_NAME_CLEN
+        self.beginning_name = const.NODE_NAME_POSLANEC
+        self.ending_name = const.NODE_NAME_VYBOR
+
+    def entry_generator(self):
+        source_collection = utils.get_collection(
+            const.CONF_MONGO_POSLANEC, self.conf, const.CONF_MONGO_PARSED, self.db
+        )
+        for entry in source_collection.iterate_all():
+            for org, typ in entry[const.POSLANEC_CLENSTVO].items():
+                if const.NODE_NAME_VYBOR.lower() in org.lower():
+                    result = {
+                        const.NEO4J_BEGINNING_ID: entry[const.MONGO_ID],
+                        const.NEO4J_ENDING_ID: org,
+                        const.CLEN_TYP: const.CLEN_TYP_DICT[typ]
+                    }
+                    yield result
+
+
+class EdgesPoslanecDelegaciaClen(Edges):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.edge_name = const.EDGE_NAME_CLEN
+        self.beginning_name = const.NODE_NAME_POSLANEC
+        self.ending_name = const.NODE_NAME_DELEGACIA
+
+    def entry_generator(self):
+        source_collection = utils.get_collection(
+            const.CONF_MONGO_POSLANEC, self.conf, const.CONF_MONGO_PARSED, self.db
+        )
+        for entry in source_collection.iterate_all():
+            for org, typ in entry[const.POSLANEC_CLENSTVO].items():
+                if const.NODE_NAME_DELEGACIA.lower() in org.lower():
+                    result = {
+                        const.NEO4J_BEGINNING_ID: entry[const.MONGO_ID],
+                        const.NEO4J_ENDING_ID: org,
+                        const.CLEN_TYP: const.CLEN_TYP_DICT[typ]
+                    }
+                    yield result
 
 class EdgesPoslanecHlasovanieHlasoval(Edges):
     def __init__(self, *args):

@@ -124,7 +124,9 @@ class Neo4jDatabase:
         return query
 
     def type_formatter(self, obj):
-        if isinstance(obj, int):
+        if isinstance(obj, bool):
+            return lambda s: const.NEO4J_BOOLEAN.format(s)
+        elif isinstance(obj, int):
             return lambda s: const.NEO4J_INTEGER.format(s)
         elif isinstance(obj, datetime):
             return lambda s: const.NEO4J_DATETIME.format(s)
