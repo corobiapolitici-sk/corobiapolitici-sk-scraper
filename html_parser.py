@@ -65,6 +65,11 @@ class HTMLParser:
             self.log.info("Overall progress: %d items parsed!", i+1)
         self.log.info("Parsing finished!")
 
+    def strip(self, s):
+        if s is None:
+            return ""
+        else:
+            return s.text.strip()
 
 class Hlasovanie(HTMLParser):
     def extract_structure(self, entry):
@@ -133,4 +138,33 @@ class Poslanec(HTMLParser):
             entry[const.POSLANEC_CLENSTVO][tokens[0].strip()] = res
         entry[const.POSLANEC_FOTO] = soup.find("div", attrs={"class": "mp_foto"}).find("img")["src"]
         return entry
+
+
+class Zakon(HTMLParser):
+    def extract_structure(self, entry):
+        soup = BeautifulSoup(entry.pop(const.MONGO_HTML), features="lxml")
+        entry[const.ZAKON_POPIS] = self.strip(soup.find("h1"))
+        main_soup = soup.find("div", attrs={"id": "_sectionLayoutContainer__panelContent"})
+        missing_citanie1 = "I. čítanie" not in [s.text.strip() for s in main_soup("h2")]
+        for span in main_soup("span"):
+            span_id = self.add_one_id(span["id"], missing_citanie1)
+            if const.ZAKON_ID_DICT[span_id] is not None:
+                entry[const.ZAKON_ID_DICT[span_id]] = self.strip(span)
+        entry[const.ZAKON_VYSLEDOK] = entry[const.ZAKON_VYSLEDOK][1:-1]
+        for field in [const.ZAKON_DATUM_DORUCENIA, const.ZAKON_PREROKOVANIE_GESTORSKY]:
+            if field in entry:
+                
+                entry[field] = datetime.strptime(entry[field].split(",")[0].strip(), "%d. %m. %Y")
+        return entry
+    
+    def add_one_id(self, span_id, add_one):
+        if add_one:
+            tokens = span_id.split("_ctl0")
+            if len(tokens) == 3:
+                num = int(tokens[2][0])
+                if num >= 2:
+                    num += 1
+                    tokens[2] = str(num) + tokens[2][1:]
+                span_id = "_ctl0".join(tokens)
+        return span_id
 

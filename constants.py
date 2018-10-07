@@ -11,6 +11,7 @@ URL_ZAKONY = "https://www.nrsr.sk/web/Default.aspx?sid=zakony/zakon&ZakZborID=13
 URL_POSLANCI = "https://www.nrsr.sk/web/Default.aspx?sid=poslanci/poslanec&PoslanecID={}&CisObdobia=7"
 URL_NRSR = "https://www.nrsr.sk/web/"
 URL_NRSR_SCHODZE = "https://www.nrsr.sk/web/Default.aspx?sid=schodze/hlasovanie/schodze"
+URL_ZOZNAM_ZAKONOV = "https://www.nrsr.sk/web/Default.aspx?sid=zakony%2fprehlad%2fpredlozene"
 
 # Config
 CONF_SCRAPE = "scrape"
@@ -162,6 +163,71 @@ KLUB_DICT = {
     "Klub SaS": KLUB_SAS,
     "Klub Slovenská národná strana": KLUB_SNS,
     "Klub SNS": KLUB_SNS
+}
+
+ZAKON_DRUH = "druh"
+ZAKON_POPIS = "popis"
+ZAKON_STAV = "stav"
+ZAKON_VYSLEDOK = "výsledok"
+ZAKON_DATUM_DORUCENIA = "dátumDoručenia"
+ZAKON_NAVRHOVATEL = "navrhovateľ"
+ZAKON_NAZOV = "názov"
+ZAKON_POSLEDNE_CPT = "poslednéČPT"
+ZAKON_ROZHODNUTIE_VYBORY = "rozhodnutieVýbory"
+ZAKON_ROZHODNUTIE_GESTORSKY = "rozhodnutieGestorskýVýbor"
+ZAKON_ROZHODNUTIE_VYSLEDOK = "rozhodnutieVýsledok"
+ZAKON_CITANIE1_SCHODZA = "čítanie1ČísloSchôdze"
+ZAKON_CITANIE1_UZNESENIE = "čítanie1Uznesenie"
+ZAKON_CITANIE1_VYBORY = "čítanie1Výbory"
+ZAKON_CITANIE1_GESTORSKY = "čítanie1GestorskýVýbor"
+ZAKON_CITANIE1_SLKLABEL = "čítanie1SlkLabel"
+ZAKON_CITANIE1_VYSLEDOK = "čítanie1Výsledok"
+ZAKON_ROKOVANIE_VYBORY = "rokovanieVýbory"
+ZAKON_PREROKOVANIE_GESTORSKY = "rokovanieDátumGestorskýVýbor"
+ZAKON_GESTORSKY = "gestorskýVýbor"
+ZAKON_CITANIE2_PREROKOVANY = "čítanie2Info"
+ZAKON_CITANIE2_STANOVISKO = "čítanie2Stanovisko"
+ZAKON_CITANIE2_VYSLEDOK = "čítanie2Výsledok"
+ZAKON_CITANIE3_PREROKOVANY = "čítanie3Info"
+ZAKON_CITANIE3_VYSLEDOK = "čítanie3Výsledok"
+ZAKON_REDAKCIA_ODOSLANY = "redakciaOdoslaný"
+ZAKON_REDAKCIA_VYSLEDOK = "redakciaVýsledok"
+ZAKON_REDAKCIA_CISLO = "redakciaČísloZákona"
+ZAKON_ID_DICT = {
+    "_sectionLayoutContainer_ctl01__ProcessStateLabel": ZAKON_STAV,
+    "_sectionLayoutContainer_ctl01__CurrentResultLabel": ZAKON_VYSLEDOK,
+    "_sectionLayoutContainer_ctl01__SslpNameLabel": ZAKON_NAZOV,
+    "_sectionLayoutContainer_ctl01_ctl00__CategoryNameLabel": ZAKON_DRUH,
+    "_sectionLayoutContainer_ctl01_ctl00__LastCptLabel": ZAKON_POSLEDNE_CPT,
+    "_sectionLayoutContainer_ctl01_ctl00__DatumDoruceniaLabel": ZAKON_DATUM_DORUCENIA,
+    "_sectionLayoutContainer_ctl01_ctl00__NavrhovatelLabel": ZAKON_NAVRHOVATEL,
+    "_sectionLayoutContainer_ctl01_ctl00__documentsList__captionLabel": None,
+    "_sectionLayoutContainer_ctl01_ctl01__VyboryLabel": ZAKON_ROZHODNUTIE_VYBORY,
+    "_sectionLayoutContainer_ctl01_ctl01__GestorskyVyborLabel": ZAKON_ROZHODNUTIE_GESTORSKY,
+    "_sectionLayoutContainer_ctl01_ctl01__ResultLabel": ZAKON_ROZHODNUTIE_VYSLEDOK,
+    "_sectionLayoutContainer_ctl01_ctl01__documentsList__captionLabel": None,
+    "_sectionLayoutContainer_ctl01_ctl02__CisSchodzeLabel": ZAKON_CITANIE1_SCHODZA,
+    "_sectionLayoutContainer_ctl01_ctl02__UznesenieLabel": ZAKON_CITANIE1_UZNESENIE,
+    "_sectionLayoutContainer_ctl01_ctl02__VyboryLabel": ZAKON_CITANIE1_VYBORY,
+    "_sectionLayoutContainer_ctl01_ctl02__GestorskyVyborLabel": ZAKON_CITANIE1_GESTORSKY,
+    "_sectionLayoutContainer_ctl01_ctl02__SlkLabel": ZAKON_CITANIE1_SLKLABEL,
+    "_sectionLayoutContainer_ctl01_ctl02__ResultLabel": ZAKON_CITANIE1_VYSLEDOK,
+    "_sectionLayoutContainer_ctl01_ctl02__documentsList__captionLabel": None,
+    "_sectionLayoutContainer_ctl01_ctl03__VyboryLabel": ZAKON_ROKOVANIE_VYBORY,
+    "_sectionLayoutContainer_ctl01_ctl03__documentsList__captionLabel": None,
+    "_sectionLayoutContainer_ctl01_ctl04__DatumPrerokovaniaLabel": ZAKON_PREROKOVANIE_GESTORSKY,
+    "_sectionLayoutContainer_ctl01_ctl04__GVNameLabel": ZAKON_GESTORSKY,
+    "_sectionLayoutContainer_ctl01_ctl04__documentsList__captionLabel": None,
+    "_sectionLayoutContainer_ctl01_ctl05__PrerokovanyLabel": ZAKON_CITANIE2_PREROKOVANY,
+    "_sectionLayoutContainer_ctl01_ctl05__ZaslaneStanoviskoLabel": ZAKON_CITANIE2_STANOVISKO,
+    "_sectionLayoutContainer_ctl01_ctl05__PdnList__PdnLabel": None,
+    "_sectionLayoutContainer_ctl01_ctl05__ResultLabel": ZAKON_CITANIE2_VYSLEDOK,
+    "_sectionLayoutContainer_ctl01_ctl06__PrerokovanyLabel": ZAKON_CITANIE3_PREROKOVANY,
+    "_sectionLayoutContainer_ctl01_ctl06__ResultLabel": ZAKON_CITANIE3_VYSLEDOK,
+    "_sectionLayoutContainer_ctl01_ctl06__documentsList__captionLabel": None,
+    "_sectionLayoutContainer_ctl01_ctl07__OdoslanyLabel": ZAKON_REDAKCIA_ODOSLANY,
+    "_sectionLayoutContainer_ctl01_ctl07__ResultLabel": ZAKON_REDAKCIA_VYSLEDOK,
+    "_sectionLayoutContainer_ctl01_ctl07__CiastkaLabel": ZAKON_REDAKCIA_CISLO
 }
 
 CLEN_NAPOSLEDY = "časNaposledy"

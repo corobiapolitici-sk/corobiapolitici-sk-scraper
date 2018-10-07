@@ -97,6 +97,13 @@ class Zakon(Scraper):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.base_url = const.URL_ZAKONY
+    
+    def get_start_end_id(self):
+            first = 1
+            soup = self.get_soup(const.URL_ZOZNAM_ZAKONOV)
+            last = int(soup.find(
+                "tr", attrs={"class": "tab_zoznam_nonalt"})("td")[1].text.strip())
+            return [first, last]
 
 
 class Poslanec(Scraper):

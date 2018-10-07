@@ -6,6 +6,7 @@ mongo:
     collections:
       hlasovanie: "hlasovanie"
       poslanec: "poslanec"
+      zakon: "zakon"
       raw: "raw"
       parsed: "parsed" 
 
