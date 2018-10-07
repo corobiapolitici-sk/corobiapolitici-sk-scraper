@@ -229,6 +229,14 @@ ZAKON_ID_DICT = {
     "_sectionLayoutContainer_ctl01_ctl07__ResultLabel": ZAKON_REDAKCIA_VYSLEDOK,
     "_sectionLayoutContainer_ctl01_ctl07__CiastkaLabel": ZAKON_REDAKCIA_CISLO
 }
+ZAKON_ZMENY = "návrhyZmien"
+ZAKON_ZMENY_CAS = "časNávrhu"
+ZAKON_ZMENY_PREDKLADATEL = "predkladateľ"
+ZAKON_ZMENY_URL = "urlZmena"
+ZAKON_ZMENY_DOKUMENT = "urlDokument"
+ZAKON_ZMENY_HLASOVANIE_URL = "urlHlasovanie"
+ZAKON_ZMENY_HLASOVANIE_ID = "idHlasovanie"
+ZAKON_ZMENY_HLASOVANIE_VYSLEDOK = "výsledokHlasovanie"
 
 CLEN_NAPOSLEDY = "časNaposledy"
 CLEN_TYP = "typČlenstva"

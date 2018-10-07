@@ -153,8 +153,8 @@ class Zakon(HTMLParser):
         entry[const.ZAKON_VYSLEDOK] = entry[const.ZAKON_VYSLEDOK][1:-1]
         for field in [const.ZAKON_DATUM_DORUCENIA, const.ZAKON_PREROKOVANIE_GESTORSKY]:
             if field in entry:
-                
                 entry[field] = datetime.strptime(entry[field].split(",")[0].strip(), "%d. %m. %Y")
+        self.add_zmeny(soup, entry, missing_citanie1)
         return entry
     
     def add_one_id(self, span_id, add_one):
@@ -168,3 +168,25 @@ class Zakon(HTMLParser):
                 span_id = "_ctl0".join(tokens)
         return span_id
 
+    def add_zmeny(self, soup, entry, add_one):
+        if add_one:
+            div_id = "_sectionLayoutContainer_ctl01_ctl04__PdnList__pdnListPanel"
+        else:
+            div_id = "_sectionLayoutContainer_ctl01_ctl05__PdnList__pdnListPanel"
+        table = soup.find("div", attrs={"id": div_id})
+        if table is not None:
+            entry[const.ZAKON_ZMENY] = {}
+            for tr in table.find("table")("tr"):
+                zmena = {}
+                tds = tr("td")
+                zmena[const.ZAKON_ZMENY_CAS] = tds[0].text.strip()
+                zmena[const.ZAKON_ZMENY_PREDKLADATEL] = tds[1].text.strip()
+                zmena[const.ZAKON_ZMENY_URL] = tds[2].find("a")["href"]
+                zmena_id = zmena[const.ZAKON_ZMENY_URL].split("=")[-1]
+                zmena[const.ZAKON_ZMENY_DOKUMENT] = tds[3].find("a")["href"]
+                if len(tds) == 5 and tds[4].text.strip() != "":
+                    zmena[const.ZAKON_ZMENY_HLASOVANIE_URL] = tds[4].find("a")["href"]
+                    zmena[const.ZAKON_ZMENY_HLASOVANIE_ID] = int(
+                        zmena[const.ZAKON_ZMENY_HLASOVANIE_URL].split("=")[-1])
+                    zmena[const.ZAKON_ZMENY_HLASOVANIE_VYSLEDOK] = tds[4].text.strip()
+                entry[const.ZAKON_ZMENY][zmena_id] = zmena
