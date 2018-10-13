@@ -35,6 +35,7 @@ def main_routine():
     processing.EdgesPoslanecHlasovanieHlasoval(db, conf).process_and_store_all()
     processing.EdgesVyborZakonNavrhnuty(db, conf).process_and_store_all()
     processing.EdgesVyborZakonGestorsky(db, conf).process_and_store_all()
+    processing.EdgesPoslanecZakonNavrhol(db, conf).process_and_store_all()
 
 
 if __name__ == "__main__":

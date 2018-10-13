@@ -25,6 +25,7 @@ CONF_MONGO_COLLECTION = "collections"
 CONF_MONGO_HLASOVANIE = "hlasovanie"
 CONF_MONGO_POSLANEC = "poslanec"
 CONF_MONGO_ZAKON = "zakon"
+CONF_MONGO_LEGISLATIVNAINICIATIVA = "legislativnainiciativa"
 CONF_MONGO_RAW = "raw"
 CONF_MONGO_NODES = "nodes"
 CONF_MONGO_EDGES = "edges"
@@ -78,6 +79,7 @@ EDGE_NAME_CLEN = "Člen"
 EDGE_NAME_HLASOVAL = "Hlasoval"
 EDGE_NAME_NAVHRNUTY = "Navrhnutý"
 EDGE_NAME_GESTORSKY = "Gestorský"
+EDGE_NAME_NAVRHOL = "Navrhol"
 
 ##########
 # FIELDS #
