@@ -203,12 +203,12 @@ class LegislativnaIniciativa(HTMLParser):
         for row in table("tr")[1:]:
             zakon = {}
             cols = row("td")
-            zakon[const.PREDLOZILZAKON_NAZOV] = cols[0].text.strip()
-            zakon[const.PREDLOZILZAKON_STAV] = cols[2].text.strip()
-            zakon[const.PREDLOZILZAKON_DORUCENY] = datetime.strptime(
+            zakon[const.ZAKON_NAZOV] = cols[0].text.strip()
+            zakon[const.ZAKON_STAV] = cols[2].text.strip()
+            zakon[const.ZAKON_DATUM_DORUCENIA] = datetime.strptime(
                 cols[3].text.strip(), "%d. %m. %Y")
-            zakon[const.PREDLOZILZAKON_NAVRHOVATEL] = cols[4].text.strip()
-            zakon[const.PREDLOZILZAKON_DRUH] = cols[5].text.strip()
+            zakon[const.ZAKON_NAVRHOVATEL] = cols[4].text.strip()
+            zakon[const.ZAKON_DRUH] = cols[5].text.strip()
             zakon_id = cols[1].text.strip()
             entry[const.PREDLOZILZAKON_LIST][zakon_id] = zakon
         return entry
