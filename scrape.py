@@ -48,7 +48,22 @@ class Scraper:
             data[const.MONGO_ID] = entry_id
         self.collection.update(data, const.MONGO_URL)
 
-    def store_all(self, start_id=None, end_id=None, replace=False):
+    def store_all(self, replace=False, **kwargs):
+        gen = self.create_id_generator(**kwargs)
+        n_entries = len(gen)
+        self.log.info("Starting to scrape %d ids!", n_entries)
+        count = 0
+        for i in gen:
+            self.store_raw_html(entry_id=i, replace=replace)
+            count += 1
+            self.log.info("Scraping total progress: %d / %d",
+                count, n_entries)
+        self.log.info("Scraping finished!")
+
+    def get_start_end_id(self):
+        return 0, 0
+
+    def create_id_generator(self, start_id=None, end_id=None):
         if start_id is None or end_id is None:
             default_start_id, default_end_id = self.get_start_end_id()
             if start_id is None:
@@ -57,15 +72,8 @@ class Scraper:
             if end_id is None:
                 end_id = default_end_id
                 self.log.info("end_id set to default value: %d", start_id)
-        self.log.info("Starting to scrape ids between %d and %d", start_id, end_id)
-        for i in range(start_id, end_id + 1):
-            self.store_raw_html(entry_id=i, replace=replace)
-            self.log.info("Scraping total progress: %d / %d",
-                i - start_id + 1, end_id - start_id + 1)
-        self.log.info("Scraping finished!")
+        return range(start_id, end_id + 1)
 
-    def get_start_end_id(self):
-        return 0, 0
 
 
 class Hlasovanie(Scraper):
@@ -114,3 +122,14 @@ class Poslanec(Scraper):
     def get_start_end_id(self):
             return [1, const.SCRAPE_MAX_ID_POSLANEC]
 
+class NavrholZakon(Scraper):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.base_url = const.URL_ZOZNAM_PREDLOZENYCH
+
+    def create_id_generator(self):
+        collection = utils.get_collection(
+            const.CONF_MONGO_POSLANEC, self.conf, const.CONF_MONGO_PARSED, self.db
+        )
+        poslanci_id = collection.get_all_attribute(const.MONGO_ID)
+        return poslanci_id

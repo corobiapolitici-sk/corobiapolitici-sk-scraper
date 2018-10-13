@@ -9,10 +9,9 @@ def get_collection(obj, conf, stage, db):
         const.CONF_MONGO_COLLECTION]
     prefix = conf_collections[stage]
     if isinstance(obj, str):
-        class_name = obj
+        suffix = obj
     else:
-        class_name = str(obj.__class__).split("'")[1].split(".")[-1].lower()
-    suffix = conf_collections[class_name]
+        suffix = str(obj.__class__).split("'")[1].split(".")[-1].lower()
     name = "_".join([prefix, suffix])
     return storage.MongoCollection(db, name)
 

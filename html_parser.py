@@ -192,3 +192,25 @@ class Zakon(HTMLParser):
                         zmena[const.ZAKON_ZMENY_HLASOVANIE_URL].split("=")[-1])
                     zmena[const.ZAKON_ZMENY_HLASOVANIE_VYSLEDOK] = tds[4].text.strip()
                 entry[const.ZAKON_ZMENY][zmena_id] = zmena
+
+class NavrholZakon(HTMLParser):
+    def extract_structure(self, entry):
+        soup = BeautifulSoup(entry.pop(const.MONGO_HTML), features="lxml")
+        entry[const.PREDLOZILZAKON_LIST] = {}
+        table = soup.find("table", attrs={"class": "tab_zoznam paginated sortable"})
+        if table is None:
+            return entry
+        for row in table("tr")[1:]:
+            zakon = {}
+            cols = row("td")
+            zakon[const.PREDLOZILZAKON_NAZOV] = cols[0].text.strip()
+            zakon[const.PREDLOZILZAKON_STAV] = cols[2].text.strip()
+            zakon[const.PREDLOZILZAKON_DORUCENY] = datetime.strptime(
+                cols[3].text.strip(), "%d. %m. %Y")
+            zakon[const.PREDLOZILZAKON_NAVRHOVATEL] = cols[4].text.strip()
+            zakon[const.PREDLOZILZAKON_DRUH] = cols[5].text.strip()
+            zakon_id = cols[1].text.strip()
+            entry[const.PREDLOZILZAKON_LIST][zakon_id] = zakon
+        return entry
+
+        

@@ -4,9 +4,6 @@ mongo:
   database:
     name: "corobiapolitici"
     collections:
-      hlasovanie: "hlasovanie"
-      poslanec: "poslanec"
-      zakon: "zakon"
       raw: "raw"
       parsed: "parsed" 
 

@@ -12,6 +12,7 @@ URL_POSLANCI = "https://www.nrsr.sk/web/Default.aspx?sid=poslanci/poslanec&Posla
 URL_NRSR = "https://www.nrsr.sk/web/"
 URL_NRSR_SCHODZE = "https://www.nrsr.sk/web/Default.aspx?sid=schodze/hlasovanie/schodze"
 URL_ZOZNAM_ZAKONOV = "https://www.nrsr.sk/web/Default.aspx?sid=zakony%2fprehlad%2fpredlozene"
+URL_ZOZNAM_PREDLOZENYCH = "https://www.nrsr.sk/web/Default.aspx?sid=zakony/sslp&PredkladatelID=0&PredkladatelPoslanecId={}&CisObdobia=7"
 
 # Config
 CONF_SCRAPE = "scrape"
@@ -257,6 +258,13 @@ SPEKTRUM_CLEN = {
     KLUB_SNS: SPEKTRUM_KOALICIA,
     KLUB_MOST: SPEKTRUM_KOALICIA
 }
+
+PREDLOZILZAKON_LIST = "zoznamZákonov"
+PREDLOZILZAKON_NAZOV = ZAKON_NAZOV
+PREDLOZILZAKON_STAV = ZAKON_STAV
+PREDLOZILZAKON_DORUCENY = ZAKON_DATUM_DORUCENIA
+PREDLOZILZAKON_NAVRHOVATEL = ZAKON_NAVRHOVATEL
+PREDLOZILZAKON_DRUH = ZAKON_DRUH
 
 CLEN_NAPOSLEDY = "časNaposledy"
 CLEN_TYP = "typČlenstva"
