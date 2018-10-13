@@ -14,6 +14,7 @@ def main_routine():
     set_up_logging(conf[const.CONF_LOGGING])
 
     db = storage.MongoDatabase(conf=conf[const.CONF_MONGO])
+
     scrape.Hlasovanie(db, conf).store_all()
     html_parser.Hlasovanie(db, conf).parse_all()
     scrape.Poslanec(db, conf).store_all()
@@ -24,6 +25,9 @@ def main_routine():
     html_parser.LegislativnaIniciativa(db, conf).parse_all()
     scrape.HlasovanieTlace(db, conf).store_all()
     html_parser.HlasovanieTlace(db, conf).parse_all()
+    scrape.Zmena(db, conf).store_all()
+    html_parser.Zmena(db, conf).parse_all()
+
     processing.NodesHlasovanie(db, conf).process_and_store_all()
     processing.NodesPoslanec(db, conf).process_and_store_all()
     processing.NodesKlub(db, conf).process_and_store_all()
@@ -31,6 +35,7 @@ def main_routine():
     processing.NodesDelegacia(db, conf).process_and_store_all()
     processing.NodesZakon(db, conf).process_and_store_all()
     processing.NodesSpektrum(db, conf).process_and_store_all()
+
     processing.EdgesPoslanecKlubClen(db, conf).process_and_store_all()
     processing.EdgesPoslanecKlubBolClenom(db, conf).process_and_store_all()
     processing.EdgesPoslanecVyborClen(db, conf).process_and_store_all()

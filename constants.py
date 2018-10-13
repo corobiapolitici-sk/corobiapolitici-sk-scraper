@@ -14,6 +14,7 @@ URL_NRSR_SCHODZE = "https://www.nrsr.sk/web/Default.aspx?sid=schodze/hlasovanie/
 URL_ZOZNAM_ZAKONOV = "https://www.nrsr.sk/web/Default.aspx?sid=zakony%2fprehlad%2fpredlozene"
 URL_ZOZNAM_PREDLOZENYCH = "https://www.nrsr.sk/web/Default.aspx?sid=zakony/sslp&PredkladatelID=0&PredkladatelPoslanecId={}&CisObdobia=7"
 URL_HLASOVANIA_CPT = "https://www.nrsr.sk/web/Default.aspx?sid=schodze/hlasovanie/vyhladavanie_vysledok&CPT={}" 
+URL_ZMENA = "https://www.nrsr.sk/web/Default.aspx?sid=schodze/nrepdn_detail&id={}"
 
 # Config
 CONF_SCRAPE = "scrape"
@@ -268,6 +269,27 @@ SPEKTRUM_CLEN = {
 PREDLOZILZAKON_LIST = "zoznamZákonov"
 
 HLASOVANIETLAC_LIST = "zoznamHlasovaní"
+
+ZMENA_NAZOV = "názov"
+ZMENA_PREDKLADATEL = "navrhovateľ"
+ZMENA_SCHODZA = "čísloSchôdze"
+ZMENA_OBDOBIE = "čísloObdobia"
+ZMENA_DATUM = "dátumPodania"
+ZMENA_DALSI = "ďalšíNavrhovatelia"
+ZMENA_PODPISANI = "podpísaníPoslanci"
+ZMENA_HLASOVANIE = "idHlasovania"
+ZMENA_DOKUMENT = "dokument"
+ZMENA_DICT = {
+    "Názov": ZMENA_NAZOV,
+    "Predkladateľ": ZMENA_PREDKLADATEL,
+    "Číslo schôdze": ZMENA_SCHODZA,
+    "Volebné obdobie": ZMENA_OBDOBIE,
+    "Dátum podania": ZMENA_DATUM,
+    "Podpísaní poslanci": ZMENA_PODPISANI,
+    "Ďalší predkladatelia": ZMENA_DALSI,
+    "Hlasovanie o návrhu": ZMENA_HLASOVANIE
+}
+
 
 CLEN_NAPOSLEDY = "časNaposledy"
 CLEN_TYP = "typČlenstva"

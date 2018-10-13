@@ -236,4 +236,35 @@ class HlasovanieTlace(HTMLParser):
         tokens = date.split(" ")
         formatted = " ".join(tokens[i].strip() for i in [0, -1])
         return datetime.strptime(formatted, "%d.%m.%Y %H:%M:%S")
+
+class Zmena(HTMLParser):
+    def extract_structure(self, entry):
+        soup = BeautifulSoup(entry.pop(const.MONGO_HTML), features="lxml")
+        divs = [
+            div 
+            for div in soup.find("div", attrs={"class": "change_request_details"})("div") 
+            if div["class"] != ["clear"]
+        ]
+        for div in divs:
+            title = const.ZMENA_DICT[div.find("strong").text.strip()]
+            if title in [const.ZMENA_NAZOV, const.ZMENA_PREDKLADATEL]:
+                entry[title] = div.find("span").text.strip()
+            if title in [const.ZMENA_SCHODZA, const.ZMENA_OBDOBIE]:
+                entry[title] = int(div.find("span").text.strip())
+            if title == const.ZMENA_DATUM:
+                text = div.find("span").text.strip()
+                try:
+                    entry[title] = datetime.strptime(text, "%d. %m. %Y")
+                except:
+                    entry[title] = datetime.strptime(text, "%d. %m. %Y %H:%M")
+            if title in [const.ZMENA_DALSI, const.ZMENA_PODPISANI]:
+                entry[title] = [name.text.strip() for name in div("li")]
+            if title == const.ZMENA_HLASOVANIE:
+                a = div.find("a")
+                if a is not None:
+                    entry[title] = int(a["href"].split("=")[-1])
+            dokument = soup.find("a", attrs={"target": "_blank"})
+            if dokument is not None:
+                entry[const.ZMENA_DOKUMENT] = dokument["href"]
+        return entry
         

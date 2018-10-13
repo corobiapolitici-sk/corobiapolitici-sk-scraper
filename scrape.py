@@ -145,3 +145,18 @@ class HlasovanieTlace(Scraper):
         )
         zakony_id = collection.get_all_attribute(const.MONGO_ID)
         return zakony_id
+
+class Zmena(Scraper):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.base_url = const.URL_ZMENA
+    
+    def create_id_generator(self):
+        collection = utils.get_collection(
+            const.CONF_MONGO_ZAKON, self.conf, const.CONF_MONGO_PARSED, self.db
+        )
+        return [
+            int(zmena_id) 
+            for zmeny in collection.get_all_attribute(const.ZAKON_ZMENY) 
+            for zmena_id in zmeny
+        ]
