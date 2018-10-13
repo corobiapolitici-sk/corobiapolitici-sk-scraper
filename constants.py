@@ -80,6 +80,7 @@ EDGE_NAME_HLASOVAL = "Hlasoval"
 EDGE_NAME_NAVHRNUTY = "Navrhnutý"
 EDGE_NAME_GESTORSKY = "Gestorský"
 EDGE_NAME_NAVRHOL = "Navrhol"
+EDGE_NAME_BOL_CLEN = "BolČlenom"
 
 ##########
 # FIELDS #
@@ -315,3 +316,7 @@ NAVRHNUTY_LEHOTA = "lehota"
 NAVRHNUTY_TYP = "typ"
 NAVRHNUTY_GESTORSKY = "Gestorský"
 NAVRHNUTY_DOPLNUJUCI = "Doplňujúci"
+
+NAVRHOL_NAVRHOVATEL = "navrhovateľ"
+NAVRHOL_VLADA = "Vláda"
+NAVRHOL_POSLANCI = "Poslanci"

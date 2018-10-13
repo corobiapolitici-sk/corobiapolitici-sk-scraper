@@ -377,3 +377,81 @@ class EdgesPoslanecZakonNavrhol(Edges):
                     const.NEO4J_BEGINNING_ID: entry[const.MONGO_ID],
                     const.NEO4J_ENDING_ID: int(zakon_id)
                 }
+
+class EdgesPoslanecKlubBolClenom(Edges):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.edge_name = const.EDGE_NAME_BOL_CLEN
+        self.beginning_name = const.NODE_NAME_POSLANEC
+        self.ending_name = const.NODE_NAME_KLUB
+
+    def entry_generator(self):
+        source_collection = utils.get_collection(
+            const.CONF_MONGO_HLASOVANIE, self.conf, const.CONF_MONGO_PARSED, self.db
+        )
+        poslanci = {}
+        for entry in source_collection.iterate_all():
+            for poslanec_id in entry[const.HLASOVANIE_INDIVIDUALNE]:
+                if poslanec_id in poslanci:
+                    if poslanci[poslanec_id][const.CLEN_NAPOSLEDY] > entry[const.HLASOVANIE_CAS]:
+                        continue
+                values = {
+                    const.NEO4J_BEGINNING_ID: int(poslanec_id),
+                    const.NEO4J_ENDING_ID: utils.parse_klub(entry[const.HLASOVANIE_INDIVIDUALNE][
+                        poslanec_id][const.HLASOVANIE_KLUB]),
+                    const.CLEN_NAPOSLEDY: entry[const.HLASOVANIE_CAS]
+                }
+                poslanci[poslanec_id] = values
+        for entry in poslanci.values():
+            yield entry
+    
+class EdgesSpektrumZakonNavrhol(Edges):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.edge_name = const.EDGE_NAME_NAVRHOL
+        self.beginning_name = const.NODE_NAME_SPEKTRUM
+        self.ending_name = const.NODE_NAME_ZAKON
+
+    def entry_generator(self):
+        source_collection = utils.get_collection(
+            const.CONF_MONGO_ZAKON, self.conf, const.CONF_MONGO_PARSED, self.db
+        )
+        col_navrh = storage.MongoCollection(self.db, "edges_poslanec_zakon_navrhol") # TODO: fix collection naming
+        col_klub = storage.MongoCollection(self.db, "edges_poslanec_klub_bol_clenom")
+        col_spektrum = storage.MongoCollection(self.db, "edges_klub_spektrum_clen")
+        for entry in source_collection.iterate_all():
+            if const.ZAKON_NAVRHOVATEL not in entry:
+                continue
+            navrhovatel = entry[const.ZAKON_NAVRHOVATEL]
+            zakon_id = entry[const.MONGO_ID]
+            if const.NAVRHOL_VLADA.lower() in navrhovatel.lower():
+                yield {
+                    const.NEO4J_BEGINNING_ID: const.SPEKTRUM_KOALICIA,
+                    const.NEO4J_ENDING_ID: zakon_id,
+                    const.NAVRHOL_NAVRHOVATEL: navrhovatel
+                }
+            elif const.NAVRHOL_POSLANCI.lower() in navrhovatel.lower():
+                poslanci = [
+                    navrh[const.NEO4J_BEGINNING_ID] 
+                    for navrh in col_navrh.get_all({const.NEO4J_ENDING_ID : entry[const.MONGO_ID]})
+                ]
+                if not poslanci:
+                    continue
+                kluby = [
+                    col_klub.get({const.NEO4J_BEGINNING_ID: poslanec_id})[const.NEO4J_ENDING_ID] 
+                    for poslanec_id in poslanci
+                ]
+                spektrum = [
+                    col_spektrum.get({const.NEO4J_BEGINNING_ID: klub})[const.NEO4J_ENDING_ID] 
+                    for klub in kluby
+                ]
+                result = {
+                    const.NEO4J_ENDING_ID: zakon_id,
+                    const.NAVRHOL_NAVRHOVATEL: const.NAVRHOL_POSLANCI
+                }
+                if spektrum.count(const.SPEKTRUM_KOALICIA) > spektrum.count(const.SPEKTRUM_OPOZICIA):
+                    result[const.NEO4J_BEGINNING_ID] = const.SPEKTRUM_KOALICIA
+                else:
+                    result[const.NEO4J_BEGINNING_ID] = const.SPEKTRUM_OPOZICIA
+                yield result
+

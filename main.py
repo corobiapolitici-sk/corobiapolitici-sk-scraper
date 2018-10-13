@@ -30,12 +30,14 @@ def main_routine():
     processing.NodesZakon(db, conf).process_and_store_all()
     processing.NodesSpektrum(db, conf).process_and_store_all()
     processing.EdgesPoslanecKlubClen(db, conf).process_and_store_all()
+    processing.EdgesPoslanecKlubBolClenom(db, conf).process_and_store_all()
     processing.EdgesPoslanecVyborClen(db, conf).process_and_store_all()
     processing.EdgesPoslanecDelegaciaClen(db, conf).process_and_store_all()
     processing.EdgesPoslanecHlasovanieHlasoval(db, conf).process_and_store_all()
     processing.EdgesVyborZakonNavrhnuty(db, conf).process_and_store_all()
     processing.EdgesVyborZakonGestorsky(db, conf).process_and_store_all()
     processing.EdgesPoslanecZakonNavrhol(db, conf).process_and_store_all()
+    processing.EdgesSpektrumZakonNavrhol(db, conf).process_and_store_all()
 
 
 if __name__ == "__main__":
