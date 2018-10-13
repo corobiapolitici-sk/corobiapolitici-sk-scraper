@@ -4,6 +4,7 @@ import numpy as np
 import storage
 import constants as const
 import utils
+from datetime import datetime
 
 class Processing:
     def __init__(self, db, conf):
@@ -130,6 +131,31 @@ class NodesDelegacia(Nodes):
         for org in orgs:
             yield {const.MONGO_ID: org}
 
+class NodesZakon(Nodes):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.node_name = const.NODE_NAME_ZAKON
+
+    def entry_generator(self):
+        source_collection = utils.get_collection(
+            const.CONF_MONGO_ZAKON, self.conf, const.CONF_MONGO_PARSED, self.db)
+        fields = [
+            const.MONGO_ID,
+            const.MONGO_TIMESTAMP,
+            const.ZAKON_STAV,
+            const.ZAKON_VYSLEDOK,
+            const.ZAKON_DRUH,
+            const.ZAKON_NAZOV,
+            const.MONGO_URL,
+            const.MONGO_UNIQUE_ID,
+            const.ZAKON_DATUM_DORUCENIA
+        ]
+        for entry in source_collection.iterate_all():
+            yield {
+                field: entry[field] if field in entry else const.NEO4J_NULLVALUE 
+                for field in fields
+            }
+
 #########
 # EDGES #
 #########
@@ -245,4 +271,50 @@ class EdgesPoslanecHlasovanieHlasoval(Edges):
                 }
                 yield hlas
 
+class EdgesVyborZakonNavrhnuty(Edges):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.edge_name = const.EDGE_NAME_NAVHRNUTY
+        self.beginning_name = const.NODE_NAME_VYBOR
+        self.ending_name = const.NODE_NAME_ZAKON
+
+    def entry_generator(self):
+        vybory = [
+            entry[const.MONGO_ID] 
+            for entry in storage.MongoCollection(self.db, "nodes_vybor").iterate_all()
+        ]
+        source_collection = utils.get_collection(
+            const.CONF_MONGO_ZAKON, self.conf, const.CONF_MONGO_PARSED, self.db
+        )
+        def result_form(entry, vybor, lehota):
+            return  {
+                const.NEO4J_BEGINNING_ID: vybor,
+                const.NEO4J_ENDING_ID: entry[const.MONGO_ID],
+                const.NAVRHNUTY_LEHOTA: lehota
+            }
+        for entry in source_collection.iterate_all():
+            if const.ZAKON_ROZHODNUTIE_VYBORY in entry:
+                sprava = entry[const.ZAKON_ROZHODNUTIE_VYBORY]
+                if sprava == "":
+                    break
+                lehota = self.get_lehota(sprava)
+                for vybor in vybory:
+                    flag = False
+                    if vybor in sprava:
+                        result = result_form(entry, vybor, lehota)
+                        result[const.NAVRHNUTY_TYP] = const.NAVRHNUTY_DOPLNUJUCI
+                        flag = True
+                    if vybor in entry[const.ZAKON_ROZHODNUTIE_GESTORSKY]:
+                        result = result_form(entry, vybor, lehota)
+                        result[const.NAVRHNUTY_TYP] = const.NAVRHNUTY_GESTORSKY
+                        flag = True
+                    if flag:
+                        yield result
+    
+    def get_lehota(self, sprava):
+        datum = sprava.split("prerokovanie ")[-1].strip()
+        if datum == sprava or datum == "ihneď.":
+            return const.NEO4J_NULLVALUE
+        else:
+            return datetime.strptime(datum, "%d. %m. %Y.")
 

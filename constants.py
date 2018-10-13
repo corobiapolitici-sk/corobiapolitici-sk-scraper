@@ -23,6 +23,7 @@ CONF_MONGO_DATABASE_NAME = "name"
 CONF_MONGO_COLLECTION = "collections"
 CONF_MONGO_HLASOVANIE = "hlasovanie"
 CONF_MONGO_POSLANEC = "poslanec"
+CONF_MONGO_ZAKON = "zakon"
 CONF_MONGO_RAW = "raw"
 CONF_MONGO_NODES = "nodes"
 CONF_MONGO_EDGES = "edges"
@@ -48,6 +49,8 @@ NEO4J_STRING = "{}"
 NEO4J_DATETIME = "datetime({})"
 NEO4J_BOOLEAN = "(CASE {} WHEN \"True\" THEN true ELSE false END)"
 
+NEO4J_NULLVALUE = "nullValue"
+
 NEO4J_OBJECT_TYPE = "object_type"
 NEO4J_NODE_NAME = "node_name"
 NEO4J_BEGINNING_ID = "beginning_id"
@@ -65,11 +68,13 @@ NODE_NAME_POSLANEC = "Poslanec"
 NODE_NAME_HLASOVANIE = "Hlasovanie"
 NODE_NAME_VYBOR = "Výbor"
 NODE_NAME_DELEGACIA = "Delegácia"
+NODE_NAME_ZAKON = "Zákon"
 
 # edge names
 
 EDGE_NAME_CLEN = "Člen"
 EDGE_NAME_HLASOVAL = "Hlasoval"
+EDGE_NAME_NAVHRNUTY = "Navrhnutý"
 
 ##########
 # FIELDS #
@@ -280,3 +285,8 @@ HLASOVAL_HLAS_DICT = {
     "[0]": HLASOVAL_NEPRITOMNY,
     "[-]": HLASOVAL_NEPLATNY
 }
+
+NAVRHNUTY_LEHOTA = "lehota"
+NAVRHNUTY_TYP = "typ"
+NAVRHNUTY_GESTORSKY = "Gestorský"
+NAVRHNUTY_DOPLNUJUCI = "Doplňujúci"

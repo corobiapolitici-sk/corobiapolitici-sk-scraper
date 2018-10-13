@@ -105,7 +105,12 @@ class Neo4jDatabase:
 
     def create_query(self, cols, entry, specs):
         query = "LOAD CSV WITH HEADERS FROM \"file:/{}\" AS row\n".format(self.temp_csv)
-        typed = lambda key: self.type_formatter(entry[key])("row.{}".format(key))
+        checknull = "(CASE WHEN {{}} = \"{}\" THEN null ELSE {{}} END)".format(
+            const.NEO4J_NULLVALUE)
+        def typed(key):
+            rowdot = "row.{}".format(key)
+            return checknull.format(rowdot, self.type_formatter(entry[key])(rowdot))
+        #typed = lambda key: self.type_formatter(entry[key])("row.{}".format(key))
         fil = lambda key: "{{{}: {}}}".format(const.MONGO_ID, typed(key))
         if specs[const.NEO4J_OBJECT_TYPE] == const.NEO4J_OBJECT_NODE:
             query += "MERGE (x:{} {})\n".format(specs[const.NEO4J_NODE_NAME], fil(const.MONGO_ID))
@@ -120,7 +125,7 @@ class Neo4jDatabase:
         for key in entry:
             if key not in [const.MONGO_ID, const.NEO4J_BEGINNING_ID, const.NEO4J_ENDING_ID]:
                 query += "SET x.{} = {}\n".format(key, typed(key))
-        self.log.info("Query for %r constructed.", specs[const.NEO4J_OBJECT_TYPE])
+        self.log.info("Query for %r constructed: \n%s", specs[const.NEO4J_OBJECT_TYPE], query)
         return query
 
     def type_formatter(self, obj):

@@ -151,6 +151,8 @@ class Zakon(HTMLParser):
             if const.ZAKON_ID_DICT[span_id] is not None:
                 entry[const.ZAKON_ID_DICT[span_id]] = self.strip(span)
         entry[const.ZAKON_VYSLEDOK] = entry[const.ZAKON_VYSLEDOK][1:-1]
+        if const.ZAKON_CITANIE1_SCHODZA in entry:
+            entry[const.ZAKON_CITANIE1_SCHODZA] = int(entry[const.ZAKON_CITANIE1_SCHODZA])
         for field in [const.ZAKON_DATUM_DORUCENIA, const.ZAKON_PREROKOVANIE_GESTORSKY]:
             if field in entry:
                 entry[field] = datetime.strptime(entry[field].split(",")[0].strip(), "%d. %m. %Y")
