@@ -75,6 +75,7 @@ NODE_NAME_ZAKON = "Zákon"
 EDGE_NAME_CLEN = "Člen"
 EDGE_NAME_HLASOVAL = "Hlasoval"
 EDGE_NAME_NAVHRNUTY = "Navrhnutý"
+EDGE_NAME_GESTORSKY = "Gestorský"
 
 ##########
 # FIELDS #
