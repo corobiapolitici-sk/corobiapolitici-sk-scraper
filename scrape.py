@@ -122,7 +122,7 @@ class Poslanec(Scraper):
     def get_start_end_id(self):
             return [1, const.SCRAPE_MAX_ID_POSLANEC]
 
-class NavrholZakon(Scraper):
+class LegislativnaIniciativa(Scraper):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.base_url = const.URL_ZOZNAM_PREDLOZENYCH

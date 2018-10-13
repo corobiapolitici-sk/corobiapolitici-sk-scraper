@@ -193,7 +193,7 @@ class Zakon(HTMLParser):
                     zmena[const.ZAKON_ZMENY_HLASOVANIE_VYSLEDOK] = tds[4].text.strip()
                 entry[const.ZAKON_ZMENY][zmena_id] = zmena
 
-class NavrholZakon(HTMLParser):
+class LegislativnaIniciativa(HTMLParser):
     def extract_structure(self, entry):
         soup = BeautifulSoup(entry.pop(const.MONGO_HTML), features="lxml")
         entry[const.PREDLOZILZAKON_LIST] = {}
