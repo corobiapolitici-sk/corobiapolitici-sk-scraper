@@ -156,6 +156,15 @@ class NodesZakon(Nodes):
                 for field in fields
             }
 
+class NodesSpektrum(Nodes):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.node_name = const.NODE_NAME_SPEKTRUM
+
+    def entry_generator(self):
+        yield {const.MONGO_ID: const.SPEKTRUM_OPOZICIA}
+        yield {const.MONGO_ID: const.SPEKTRUM_KOALICIA}
+
 #########
 # EDGES #
 #########
@@ -335,3 +344,17 @@ class EdgesVyborZakonGestorsky(Edges):
                     const.NEO4J_BEGINNING_ID: entry[const.ZAKON_GESTORSKY],
                     const.NEO4J_ENDING_ID: entry[const.MONGO_ID]
                 }
+
+class EdgesKlubSpektrumClen(Edges):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.edge_name = const.EDGE_NAME_CLEN
+        self.beginning_name = const.NODE_NAME_KLUB
+        self.ending_name = const.NODE_NAME_SPEKTRUM
+
+    def entry_generator(self):
+        for klub, spektrum in const.SPEKTRUM_CLEN.items():
+            yield {
+                const.NEO4J_BEGINNING_ID: klub,
+                const.NEO4J_ENDING_ID: spektrum
+            }
