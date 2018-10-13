@@ -22,6 +22,8 @@ def main_routine():
     html_parser.Zakon(db, conf).parse_all()
     scrape.LegislativnaIniciativa(db, conf).store_all()
     html_parser.LegislativnaIniciativa(db, conf).parse_all()
+    scrape.HlasovanieTlace(db, conf).store_all()
+    html_parser.HlasovanieTlace(db, conf).parse_all()
     processing.NodesHlasovanie(db, conf).process_and_store_all()
     processing.NodesPoslanec(db, conf).process_and_store_all()
     processing.NodesKlub(db, conf).process_and_store_all()
@@ -38,6 +40,7 @@ def main_routine():
     processing.EdgesVyborZakonGestorsky(db, conf).process_and_store_all()
     processing.EdgesPoslanecZakonNavrhol(db, conf).process_and_store_all()
     processing.EdgesSpektrumZakonNavrhol(db, conf).process_and_store_all()
+    processing.EdgesHlasovanieZakonHlasovaloO(db, conf).process_and_store_all()
 
 
 if __name__ == "__main__":

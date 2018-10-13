@@ -13,6 +13,7 @@ URL_NRSR = "https://www.nrsr.sk/web/"
 URL_NRSR_SCHODZE = "https://www.nrsr.sk/web/Default.aspx?sid=schodze/hlasovanie/schodze"
 URL_ZOZNAM_ZAKONOV = "https://www.nrsr.sk/web/Default.aspx?sid=zakony%2fprehlad%2fpredlozene"
 URL_ZOZNAM_PREDLOZENYCH = "https://www.nrsr.sk/web/Default.aspx?sid=zakony/sslp&PredkladatelID=0&PredkladatelPoslanecId={}&CisObdobia=7"
+URL_HLASOVANIA_CPT = "https://www.nrsr.sk/web/Default.aspx?sid=schodze/hlasovanie/vyhladavanie_vysledok&CPT={}" 
 
 # Config
 CONF_SCRAPE = "scrape"
@@ -26,6 +27,7 @@ CONF_MONGO_HLASOVANIE = "hlasovanie"
 CONF_MONGO_POSLANEC = "poslanec"
 CONF_MONGO_ZAKON = "zakon"
 CONF_MONGO_LEGISLATIVNAINICIATIVA = "legislativnainiciativa"
+CONF_MONGO_HLASOVANIETLAC = "hlasovanietlace"
 CONF_MONGO_RAW = "raw"
 CONF_MONGO_NODES = "nodes"
 CONF_MONGO_EDGES = "edges"
@@ -81,6 +83,7 @@ EDGE_NAME_NAVHRNUTY = "Navrhnutý"
 EDGE_NAME_GESTORSKY = "Gestorský"
 EDGE_NAME_NAVRHOL = "Navrhol"
 EDGE_NAME_BOL_CLEN = "BolČlenom"
+EDGE_NAME_HLASOVALO_O = "HlasovaloO"
 
 ##########
 # FIELDS #
@@ -268,6 +271,8 @@ PREDLOZILZAKON_STAV = ZAKON_STAV
 PREDLOZILZAKON_DORUCENY = ZAKON_DATUM_DORUCENIA
 PREDLOZILZAKON_NAVRHOVATEL = ZAKON_NAVRHOVATEL
 PREDLOZILZAKON_DRUH = ZAKON_DRUH
+
+HLASOVANIETLAC_LIST = "zoznamHlasovaní"
 
 CLEN_NAPOSLEDY = "časNaposledy"
 CLEN_TYP = "typČlenstva"

@@ -455,3 +455,20 @@ class EdgesSpektrumZakonNavrhol(Edges):
                     result[const.NEO4J_BEGINNING_ID] = const.SPEKTRUM_OPOZICIA
                 yield result
 
+class EdgesHlasovanieZakonHlasovaloO(Edges):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.edge_name = const.EDGE_NAME_HLASOVALO_O
+        self.beginning_name = const.NODE_NAME_HLASOVANIE
+        self.ending_name = const.NODE_NAME_ZAKON
+
+    def entry_generator(self):
+        source_collection = utils.get_collection(
+            const.CONF_MONGO_HLASOVANIETLAC, self.conf, const.CONF_MONGO_PARSED, self.db
+        )
+        for entry in source_collection.iterate_all():
+            for hlasovanie_id in entry.get(const.HLASOVANIETLAC_LIST, {}):
+                yield {
+                    const.NEO4J_BEGINNING_ID: int(hlasovanie_id),
+                    const.NEO4J_ENDING_ID: entry[const.MONGO_ID]
+                }

@@ -110,7 +110,6 @@ class Neo4jDatabase:
         def typed(key):
             rowdot = "row.{}".format(key)
             return checknull.format(rowdot, self.type_formatter(entry[key])(rowdot))
-        #typed = lambda key: self.type_formatter(entry[key])("row.{}".format(key))
         fil = lambda key: "{{{}: {}}}".format(const.MONGO_ID, typed(key))
         if specs[const.NEO4J_OBJECT_TYPE] == const.NEO4J_OBJECT_NODE:
             query += "MERGE (x:{} {})\n".format(specs[const.NEO4J_NODE_NAME], fil(const.MONGO_ID))

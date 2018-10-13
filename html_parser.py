@@ -213,4 +213,27 @@ class LegislativnaIniciativa(HTMLParser):
             entry[const.PREDLOZILZAKON_LIST][zakon_id] = zakon
         return entry
 
+class HlasovanieTlace(HTMLParser):
+    def extract_structure(self, entry):
+        soup = BeautifulSoup(entry.pop(const.MONGO_HTML), features="lxml")
+        entry[const.HLASOVANIETLAC_LIST] = {}
+        table = soup.find("table", attrs={"class": "tab_zoznam"})
+        if table is None:
+            return entry
+        for row in table("tr")[1:]:
+            hlasovanie = {}
+            cols = row("td")
+            hlasovanie[const.HLASOVANIE_SCHODZA] = int(cols[0].text.strip())
+            hlasovanie[const.HLASOVANIE_CAS] = self.parse_date(cols[1].text.strip())
+            hlasovanie[const.HLASOVANIE_CISLO] = int(cols[2].text.strip())
+            hlasovanie[const.HLASOVANIE_NAZOV] = cols[4].text.strip()
+            hlasovanie_id = cols[5].find("a")["href"].split("=")[-1]
+            if hlasovanie_id != "":
+                entry[const.HLASOVANIETLAC_LIST][hlasovanie_id] = hlasovanie
+        return entry
+
+    def parse_date(self, date):
+        tokens = date.split(" ")
+        formatted = " ".join(tokens[i].strip() for i in [0, -1])
+        return datetime.strptime(formatted, "%d.%m.%Y %H:%M:%S")
         

@@ -133,3 +133,15 @@ class LegislativnaIniciativa(Scraper):
         )
         poslanci_id = collection.get_all_attribute(const.MONGO_ID)
         return poslanci_id
+
+class HlasovanieTlace(Scraper):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.base_url = const.URL_HLASOVANIA_CPT
+
+    def create_id_generator(self):
+        collection = utils.get_collection(
+            const.CONF_MONGO_ZAKON, self.conf, const.CONF_MONGO_PARSED, self.db
+        )
+        zakony_id = collection.get_all_attribute(const.MONGO_ID)
+        return zakony_id
