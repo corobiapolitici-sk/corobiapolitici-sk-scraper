@@ -35,6 +35,7 @@ def main_routine():
     processing.NodesDelegacia(db, conf).process_and_store_all()
     processing.NodesZakon(db, conf).process_and_store_all()
     processing.NodesSpektrum(db, conf).process_and_store_all()
+    processing.NodesZmena(db, conf).process_and_store_all()
 
     processing.EdgesPoslanecKlubClen(db, conf).process_and_store_all()
     processing.EdgesPoslanecKlubBolClenom(db, conf).process_and_store_all()

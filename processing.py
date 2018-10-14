@@ -486,3 +486,46 @@ class EdgesHlasovanieZakonHlasovaloO(Edges):
                     const.NEO4J_BEGINNING_ID: int(hlasovanie_id),
                     const.NEO4J_ENDING_ID: entry[const.MONGO_ID]
                 }
+
+class EdgesPoslanecZmenaNavrhol(Edges):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.edge_name = const.EDGE_NAME_NAVRHOL
+        self.beginning_name = const.NODE_NAME_POSLANEC
+        self.ending_name = const.NODE_NAME_ZMENA
+
+    def entry_generator(self):
+        source_collection = utils.get_collection(
+            const.CONF_MONGO_ZMENA, self.conf, const.CONF_MONGO_PARSED, self.db
+        )
+        for entry in source_collection.iterate_all():
+            yield {
+                const.NEO4J_BEGINNING_ID: utils.get_poslanec_id(
+                    self.db, entry[const.ZMENA_PREDKLADATEL]),
+                const.NEO4J_ENDING_ID: entry[const.MONGO_ID],
+                const.NAVRHOL_NAVRHOVATEL: const.NAVRHOL_HLAVNY
+            }
+            for poslanec in entry.get(const.ZMENA_DALSI, []):
+                yield {
+                    const.NEO4J_BEGINNING_ID: utils.get_poslanec_id(self.db, poslanec),
+                    const.NEO4J_ENDING_ID: entry[const.MONGO_ID],
+                    const.NAVRHOL_NAVRHOVATEL: const.NAVRHOL_DALSI
+                }
+
+class EdgesPoslanecZmenaPodpisal(Edges):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.edge_name = const.EDGE_NAME_PODPISAL
+        self.beginning_name = const.NODE_NAME_POSLANEC
+        self.ending_name = const.NODE_NAME_ZMENA
+
+    def entry_generator(self):
+        source_collection = utils.get_collection(
+            const.CONF_MONGO_ZMENA, self.conf, const.CONF_MONGO_PARSED, self.db
+        )
+        for entry in source_collection.iterate_all():
+            for poslanec in entry.get(const.ZMENA_PODPISANI, []):
+                yield {
+                    const.NEO4J_BEGINNING_ID: utils.get_poslanec_id(self.db, poslanec),
+                    const.NEO4J_ENDING_ID: entry[const.MONGO_ID]
+                }

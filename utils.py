@@ -40,3 +40,10 @@ def set_up_logging(conf):
     logging.basicConfig(
         handlers=[logging.FileHandler(filename, 'w', 'utf-8')], 
         **conf)
+
+def get_poslanec_id(db, name): # priezvisko, meno
+    col_names = storage.MongoCollection(db, "nodes_poslanec")
+    priezvisko, meno = [s.strip() for s in name.split(",")]
+    poslanec = col_names.get(
+        {const.POSLANEC_PRIEZVISKO: priezvisko, const.POSLANEC_MENO: meno})
+    return poslanec["id"]
