@@ -297,7 +297,7 @@ class EdgesPoslanecHlasovanieHlasoval(Edges):
 class EdgesVyborZakonNavrhnuty(Edges):
     def __init__(self, *args):
         super().__init__(*args)
-        self.edge_name = const.EDGE_NAME_NAVHRNUTY
+        self.edge_name = const.EDGE_NAME_NAVRHNUTY
         self.beginning_name = const.NODE_NAME_VYBOR
         self.ending_name = const.NODE_NAME_ZAKON
 
@@ -527,5 +527,23 @@ class EdgesPoslanecZmenaPodpisal(Edges):
             for poslanec in entry.get(const.ZMENA_PODPISANI, []):
                 yield {
                     const.NEO4J_BEGINNING_ID: utils.get_poslanec_id(self.db, poslanec),
+                    const.NEO4J_ENDING_ID: entry[const.MONGO_ID]
+                }
+
+class EdgesZmenaZakonNavrhnuta(Edges):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.edge_name = const.EDGE_NAME_NAVRHNUTA
+        self.beginning_name = const.NODE_NAME_ZMENA
+        self.ending_name = const.NODE_NAME_ZAKON
+
+    def entry_generator(self):
+        source_collection = utils.get_collection(
+            const.CONF_MONGO_ZAKON, self.conf, const.CONF_MONGO_PARSED, self.db
+        )
+        for entry in source_collection.iterate_all():
+            for zmena_id in entry.get(const.ZAKON_ZMENY, {}):
+                yield {
+                    const.NEO4J_BEGINNING_ID: int(zmena_id),
                     const.NEO4J_ENDING_ID: entry[const.MONGO_ID]
                 }

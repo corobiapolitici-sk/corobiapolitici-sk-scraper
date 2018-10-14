@@ -45,8 +45,12 @@ def main_routine():
     processing.EdgesVyborZakonNavrhnuty(db, conf).process_and_store_all()
     processing.EdgesVyborZakonGestorsky(db, conf).process_and_store_all()
     processing.EdgesPoslanecZakonNavrhol(db, conf).process_and_store_all()
+    processing.EdgesKlubSpektrumClen(db, conf).process_and_store_all()
     processing.EdgesSpektrumZakonNavrhol(db, conf).process_and_store_all()
     processing.EdgesHlasovanieZakonHlasovaloO(db, conf).process_and_store_all()
+    processing.EdgesPoslanecZmenaNavrhol(db, conf).process_and_store_all()
+    processing.EdgesPoslanecZmenaPodpisal(db, conf).process_and_store_all()
+    processing.EdgesZmenaZakonNavrhnuta(db, conf).process_and_store_all()
 
 
 if __name__ == "__main__":

@@ -328,12 +328,13 @@ ZMENA_DICT = {
 # Names
 EDGE_NAME_CLEN = "Člen"
 EDGE_NAME_HLASOVAL = "Hlasoval"
-EDGE_NAME_NAVHRNUTY = "Navrhnutý"
+EDGE_NAME_NAVRHNUTY = "Navrhnutý"
 EDGE_NAME_GESTORSKY = "Gestorský"
 EDGE_NAME_NAVRHOL = "Navrhol"
 EDGE_NAME_BOL_CLEN = "BolČlenom"
 EDGE_NAME_HLASOVALO_O = "HlasovaloO"
 EDGE_NAME_PODPISAL = "Podpísal"
+EDGE_NAME_NAVRHNUTA = "Navrhnutá"
 
 # Fields
 
