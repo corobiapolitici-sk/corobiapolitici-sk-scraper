@@ -1,11 +1,7 @@
-# Mongo
-MONGO_ID = "id"
-MONGO_TIMESTAMP = "insertTime"
-MONGO_URL = "url"
-MONGO_HTML = "html"
-MONGO_UNIQUE_ID = "_id"
+#############
+# Base URLs #
+#############
 
-# Base URLs
 URL_HLASOVANIA = "https://www.nrsr.sk/web/Default.aspx?sid=schodze/hlasovanie/hlasklub&ID={}"
 URL_ZAKONY = "https://www.nrsr.sk/web/Default.aspx?sid=zakony/zakon&ZakZborID=13&CisObdobia=7&CPT={}"
 URL_POSLANCI = "https://www.nrsr.sk/web/Default.aspx?sid=poslanci/poslanec&PoslanecID={}&CisObdobia=7"
@@ -16,46 +12,71 @@ URL_ZOZNAM_PREDLOZENYCH = "https://www.nrsr.sk/web/Default.aspx?sid=zakony/sslp&
 URL_HLASOVANIA_CPT = "https://www.nrsr.sk/web/Default.aspx?sid=schodze/hlasovanie/vyhladavanie_vysledok&CPT={}" 
 URL_ZMENA = "https://www.nrsr.sk/web/Default.aspx?sid=schodze/nrepdn_detail&id={}"
 
-# Config
+##########
+# Config #
+##########
+
+# Scrape
 CONF_SCRAPE = "scrape"
 CONF_SCRAPE_DELAY = "delay"
+
+# Mongo
 CONF_MONGO = "mongo"
 CONF_MONGO_CLIENT = "client"
 CONF_MONGO_DATABASE = "database"
 CONF_MONGO_DATABASE_NAME = "name"
 CONF_MONGO_COLLECTION = "collections"
+
+# Mongo collections
+
+## Names
 CONF_MONGO_HLASOVANIE = "hlasovanie"
 CONF_MONGO_POSLANEC = "poslanec"
 CONF_MONGO_ZAKON = "zakon"
 CONF_MONGO_LEGISLATIVNAINICIATIVA = "legislativnainiciativa"
 CONF_MONGO_HLASOVANIETLAC = "hlasovanietlace"
+CONF_MONGO_ZMENA = "zmena"
+
+## Prefixes
 CONF_MONGO_RAW = "raw"
 CONF_MONGO_NODES = "nodes"
 CONF_MONGO_EDGES = "edges"
 CONF_MONGO_PARSED = "parsed"
+
+# Neo4j
 CONF_NEO4J = "neo4j"
 CONF_NEO4J_CLIENT = "client"
 CONF_NEO4J_AUTH = "auth"
 CONF_NEO4J_URI = "uri"
 CONF_NEO4J_TEMP_CSV = "temp_csv"
 CONF_NEO4J_PERIODIC_COMMIT = "periodic_commit"
+
+# Logging
 CONF_LOGGING = "logging"
 CONF_LOGGING_FILENAME = "filename"
 
-# Scrape
+##########
+# Scrape #
+##########
 SCRAPE_MAX_ID_POSLANEC = 1000
 
-# Process
+###########
+# Process #
+###########
 PARSE_ERROR_NOT_FOUND = "We are sorry, but an unexpected error occured on the website."
 
-# neo4j
+#########
+# Neo4j #
+#########
+
+# Query formatting
 NEO4J_INTEGER = "ToInteger({})"
 NEO4J_STRING = "{}"
 NEO4J_DATETIME = "datetime({})"
 NEO4J_BOOLEAN = "(CASE {} WHEN \"True\" THEN true ELSE false END)"
-
 NEO4J_NULLVALUE = "nullValue"
 
+# CSV fields
 NEO4J_OBJECT_TYPE = "object_type"
 NEO4J_NODE_NAME = "node_name"
 NEO4J_BEGINNING_ID = "beginning_id"
@@ -66,8 +87,21 @@ NEO4J_EDGE_NAME = "edge_name"
 NEO4J_OBJECT_NODE = "node"
 NEO4J_OBJECT_EDGE = "edge"
 
-# Node names
+#########
+# Mongo #
+#########
 
+MONGO_ID = "id"
+MONGO_TIMESTAMP = "insertTime"
+MONGO_URL = "url"
+MONGO_HTML = "html"
+MONGO_UNIQUE_ID = "_id"
+
+#########
+# Nodes #
+#########
+
+# Names
 NODE_NAME_KLUB = "Klub"
 NODE_NAME_POSLANEC = "Poslanec"
 NODE_NAME_HLASOVANIE = "Hlasovanie"
@@ -75,21 +109,11 @@ NODE_NAME_VYBOR = "Výbor"
 NODE_NAME_DELEGACIA = "Delegácia"
 NODE_NAME_ZAKON = "Zákon"
 NODE_NAME_SPEKTRUM = "Spektrum"
+NODE_NAME_ZMENA = "Zmena"
 
-# edge names
+# Fields
 
-EDGE_NAME_CLEN = "Člen"
-EDGE_NAME_HLASOVAL = "Hlasoval"
-EDGE_NAME_NAVHRNUTY = "Navrhnutý"
-EDGE_NAME_GESTORSKY = "Gestorský"
-EDGE_NAME_NAVRHOL = "Navrhol"
-EDGE_NAME_BOL_CLEN = "BolČlenom"
-EDGE_NAME_HLASOVALO_O = "HlasovaloO"
-
-##########
-# FIELDS #
-##########
-
+## Hlasovanie
 HLASOVANIE_CAS = "časHlasovania"
 HLASOVANIE_CISLO = "čísloHlasovania"
 HLASOVANIE_OBDOBIE = "čísloObdobia"
@@ -127,6 +151,7 @@ HLASOVANIE_URL_DICT = {
     "ZakZborID": HLASOVANIE_IDZAKZBOR
 }
 
+## Poslanec
 POSLANEC_PRIEZVISKO = "priezvisko"
 POSLANEC_MENO = "meno"
 POSLANEC_CLENSTVO = "členstvo"
@@ -154,6 +179,7 @@ POSLANEC_INFO_DICT = {
     "fotografia": POSLANEC_FOTO
 }
 
+## Klub
 KLUB_NAZOV = "názov"
 KLUB_POCET = "početPoslancov"
 KLUB_LSNS = "ĽSNS"
@@ -180,6 +206,7 @@ KLUB_DICT = {
     "Klub SNS": KLUB_SNS
 }
 
+## Zakon
 ZAKON_DRUH = "druh"
 ZAKON_POPIS = "popis"
 ZAKON_STAV = "stav"
@@ -253,6 +280,7 @@ ZAKON_ZMENY_HLASOVANIE_URL = "urlHlasovanie"
 ZAKON_ZMENY_HLASOVANIE_ID = "idHlasovanie"
 ZAKON_ZMENY_HLASOVANIE_VYSLEDOK = "výsledokHlasovanie"
 
+## Spektrum
 SPEKTRUM_KOALICIA = "Koalícia"
 SPEKTRUM_OPOZICIA = "Opozícia"
 SPEKTRUM_CLEN = {
@@ -266,10 +294,13 @@ SPEKTRUM_CLEN = {
     KLUB_MOST: SPEKTRUM_KOALICIA
 }
 
+## PredlozilZakon
 PREDLOZILZAKON_LIST = "zoznamZákonov"
 
+## HlasovanieTlac
 HLASOVANIETLAC_LIST = "zoznamHlasovaní"
 
+## Zmena
 ZMENA_NAZOV = "názov"
 ZMENA_PREDKLADATEL = "navrhovateľ"
 ZMENA_SCHODZA = "čísloSchôdze"
@@ -290,7 +321,22 @@ ZMENA_DICT = {
     "Hlasovanie o návrhu": ZMENA_HLASOVANIE
 }
 
+#########
+# Edges #
+#########
 
+# Names
+EDGE_NAME_CLEN = "Člen"
+EDGE_NAME_HLASOVAL = "Hlasoval"
+EDGE_NAME_NAVHRNUTY = "Navrhnutý"
+EDGE_NAME_GESTORSKY = "Gestorský"
+EDGE_NAME_NAVRHOL = "Navrhol"
+EDGE_NAME_BOL_CLEN = "BolČlenom"
+EDGE_NAME_HLASOVALO_O = "HlasovaloO"
+
+# Fields
+
+## Clen
 CLEN_NAPOSLEDY = "časNaposledy"
 CLEN_TYP = "typČlenstva"
 CLEN_CLEN = "Člen"
@@ -317,6 +363,7 @@ CLEN_TYP_DICT = {
     "Vedúca": CLEN_VEDUCI
 }
 
+## Hlasoval
 HLASOVAL_HLAS = "hlas"
 HLASOVAL_KLUB = "klub"
 HLASOVAL_ZA = "Za"
@@ -334,11 +381,13 @@ HLASOVAL_HLAS_DICT = {
     "[-]": HLASOVAL_NEPLATNY
 }
 
+## Navrhnuty
 NAVRHNUTY_LEHOTA = "lehota"
 NAVRHNUTY_TYP = "typ"
 NAVRHNUTY_GESTORSKY = "Gestorský"
 NAVRHNUTY_DOPLNUJUCI = "Doplňujúci"
 
+## Navrhol
 NAVRHOL_NAVRHOVATEL = "navrhovateľ"
 NAVRHOL_VLADA = "Vláda"
 NAVRHOL_POSLANCI = "Poslanci"
