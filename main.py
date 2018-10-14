@@ -51,6 +51,7 @@ def main_routine():
     processing.EdgesPoslanecZmenaNavrhol(db, conf).process_and_store_all()
     processing.EdgesPoslanecZmenaPodpisal(db, conf).process_and_store_all()
     processing.EdgesZmenaZakonNavrhnuta(db, conf).process_and_store_all()
+    processing.EdgesHlasovanieZmenaHlasovaloO(db, conf).process_and_store_all()
 
 
 if __name__ == "__main__":

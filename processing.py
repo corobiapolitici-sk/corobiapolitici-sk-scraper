@@ -1,5 +1,6 @@
 import logging
 import numpy as np
+import pandas as pd
 
 import storage
 import constants as const
@@ -547,3 +548,45 @@ class EdgesZmenaZakonNavrhnuta(Edges):
                     const.NEO4J_BEGINNING_ID: int(zmena_id),
                     const.NEO4J_ENDING_ID: entry[const.MONGO_ID]
                 }
+
+class EdgesHlasovanieZmenaHlasovaloO(Edges):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.edge_name = const.EDGE_NAME_HLASOVALO_O
+        self.beginning_name = const.NODE_NAME_HLASOVANIE
+        self.ending_name = const.NODE_NAME_ZMENA
+
+    def entry_generator(self):
+        col_zakon = utils.get_collection(
+            const.CONF_MONGO_ZAKON, self.conf, const.CONF_MONGO_PARSED, self.db
+        )
+        col_tlac = utils.get_collection(
+            const.CONF_MONGO_HLASOVANIETLAC, self.conf, const.CONF_MONGO_PARSED, self.db
+        )
+        for entry in col_zakon.iterate_all():
+            zakon = col_tlac.get({const.MONGO_ID: entry[const.MONGO_ID]})
+            hlasovania = zakon.get(const.HLASOVANIETLAC_LIST, {})
+            zmeny = entry.get(const.ZAKON_ZMENY, {})
+            ids = sorted(zmeny.keys())
+            names = [zmeny[i][const.ZAKON_ZMENY_PREDKLADATEL].split(",")[0] for i in ids]
+            hlas_text = pd.Series({
+                key: value["názovHlasovania"].split("Hlasovanie")[-1] 
+                for key, value in hlasovania.items() 
+                if "druhé čítanie" in value["názovHlasovania"]
+            })
+            if len(hlas_text) == 0:
+                continue
+            counts = [0] * len(ids)
+            for j, name in enumerate(names):
+                if names.count(name) > 1:
+                    counts[j] = names[:j+1].count(name)
+            for j, i in enumerate(ids):
+                hlas_name = hlas_text[hlas_text.str.contains(names[j][:-1])]
+                if counts[j] > 0:
+                    hlas_name = hlas_name[hlas_name.str.contains("{}. návrh".format(counts[j]))]
+                for id_hlas, text in hlas_name.items():
+                    if not "dopracovanie" in text and not "preložiť" in text:
+                        yield {
+                            const.NEO4J_BEGINNING_ID: int(id_hlas),
+                            const.NEO4J_ENDING_ID: int(i)
+                        }
