@@ -165,6 +165,20 @@ class NodesSpektrum(Nodes):
         yield {const.MONGO_ID: const.SPEKTRUM_OPOZICIA}
         yield {const.MONGO_ID: const.SPEKTRUM_KOALICIA}
 
+class NodesZmena(Nodes):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.node_name = const.NODE_NAME_ZMENA
+
+    def entry_generator(self):
+        source_collection = utils.get_collection(
+            const.CONF_MONGO_ZMENA, self.conf, const.CONF_MONGO_PARSED, self.db)
+        for entry in source_collection.iterate_all():
+            entry.pop(const.ZMENA_PODPISANI, None)
+            entry.pop(const.ZMENA_DALSI, None)
+            entry.pop(const.ZMENA_PREDKLADATEL)
+            yield entry
+
 #########
 # EDGES #
 #########
