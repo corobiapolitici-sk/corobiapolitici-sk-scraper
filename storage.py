@@ -188,6 +188,9 @@ class Neo4jDatabase:
                 self.batch_append_temp_csv(cols, entries)
                 self.log.info("Overall batch insertion progress: %d / %d.", i+1, len(all_entries))
                 unique_ids = []
+        entries = collection.get_all({const.MONGO_UNIQUE_ID: {"$in": unique_ids}})
+        self.batch_append_temp_csv(cols, entries)
+        self.log.info("Overall batch insertion progress: %d / %d.", i+1, len(all_entries))
         self.log.info("Neo4j insertion started.")
         self.session.run(query)
         self.log.info("Objects batch insertion finished!")
