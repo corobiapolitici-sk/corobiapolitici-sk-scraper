@@ -20,16 +20,16 @@ class HTMLParser:
         self.source_collection = source_collection
         self.target_collection = target_collection
         self.log = logging.getLogger(str(self.__class__).split("'")[1])
+        self.unique_ids = [const.MONGO_ID]
 
-    def get(self, entry_id):
-        query = {const.MONGO_ID: entry_id}
+    def get(self, query):
         entry = self.source_collection.get(query)
         if entry is None:
-            self.log.info("No object with id %d in collection %r", 
-                entry_id, self.target_collection.name)
+            self.log.info("No objectsatisfying query %s in collection %r", 
+                str(query), self.target_collection.name)
             return
         if const.PARSE_ERROR_NOT_FOUND in entry[const.MONGO_HTML]:
-            self.log.info("Object id %d corresponds to an empty page", entry_id)
+            self.log.info("Object id %s corresponds to an empty page", str(query))
             return
         return entry
     
@@ -39,29 +39,29 @@ class HTMLParser:
     def store(self, data):
         self.target_collection.update(data, const.MONGO_ID)
 
-    def parse(self, entry_id):
-        entry = self.get(entry_id)
+    def parse(self, query):
+        entry = self.get(query)
         if entry is None:
             return
         entry = self.extract_structure(entry)
         if entry is None:
-            self.log.info("Entry %d has invalid structure.", entry_id)
+            self.log.info("Entry %s has invalid structure.", str(query))
             return
         self.store(entry)
-        self.log.info("Entry %d parsed!", entry_id)
+        self.log.info("Entry %d parsed!", str(query))
 
     def parse_all(self):
         for i, entry in enumerate(self.source_collection.iterate_all()):
-            entry_id = entry[const.MONGO_ID]
-            target = self.target_collection.get({const.MONGO_ID: entry_id}, 
+            query = {unique_id: entry[unique_id] for unique_id in self.unique_ids}
+            target = self.target_collection.get(query, 
                 projection=[const.MONGO_TIMESTAMP])
             if target is not None:
-                source_insert = self.source_collection.get({const.MONGO_ID: entry_id},
+                source_insert = self.source_collection.get(query,
                 projection=[const.MONGO_TIMESTAMP])[const.MONGO_TIMESTAMP]
                 if source_insert < target[const.MONGO_TIMESTAMP]:
-                    self.log.info("Entry %d already parsed.", entry_id)
+                    self.log.info("Entry %s already parsed.", str(query))
                     continue
-            self.parse(entry_id)
+            self.parse(query)
             self.log.info("Overall progress: %d items parsed!", i+1)
         self.log.info("Parsing finished!")
 
@@ -87,12 +87,17 @@ class Hlasovanie(HTMLParser):
         entry[const.HLASOVANIE_CISLO] = int(first_box("div")[2].find("span").text.strip())
         entry[const.HLASOVANIE_NAZOV] = first_box("div")[3].find("span").text.strip().replace(
             "\n", " ").replace("\r", " ").replace("  ", " ")
-        entry[const.HLASOVANIE_VYSLEDOK] = first_box("div")[4].find("span").text.strip()
+        vysledok = first_box("div")[4].find("span")
+        if vysledok is not None:
+            entry[const.HLASOVANIE_VYSLEDOK] = vysledok.text.strip()
 
-        for result in second_box("div")[:-1]:
-            key = result.find("strong").text.strip()
-            item = int(result.find("span").text.strip())
-            entry[const.HLASOVANIE_SUHRN_DICT[key]] = item
+        try:
+            for result in second_box("div")[:-1]:
+                key = result.find("strong").text.strip()
+                item = int(result.find("span").text.strip())
+                entry[const.HLASOVANIE_SUHRN_DICT[key]] = item
+        except:
+            return entry
 
         entry[const.HLASOVANIE_INDIVIDUALNE] = {}
         table = soup.find("table", attrs={"class": "hpo_result_table"})
@@ -116,6 +121,10 @@ class Hlasovanie(HTMLParser):
         return entry
 
 class Poslanec(HTMLParser):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.unique_ids = [const.MONGO_ID, const.POSLANEC_OBDOBIE]
+
     def extract_structure(self, entry):
         soup = BeautifulSoup(entry.pop(const.MONGO_HTML), features="lxml")
         personal = soup.find("div", attrs={"class":"mp_personal_data"})

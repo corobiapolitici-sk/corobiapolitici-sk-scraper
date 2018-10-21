@@ -4,7 +4,7 @@
 
 URL_HLASOVANIA = "https://www.nrsr.sk/web/Default.aspx?sid=schodze/hlasovanie/hlasklub&ID={}"
 URL_ZAKONY = "https://www.nrsr.sk/web/Default.aspx?sid=zakony/zakon&ZakZborID=13&CisObdobia=7&CPT={}"
-URL_POSLANCI = "https://www.nrsr.sk/web/Default.aspx?sid=poslanci/poslanec&PoslanecID={}&CisObdobia=7"
+URL_POSLANCI = "https://www.nrsr.sk/web/Default.aspx?sid=poslanci/poslanec&PoslanecID={{}}&CisObdobia={}"
 URL_NRSR = "https://www.nrsr.sk/web/"
 URL_NRSR_SCHODZE = "https://www.nrsr.sk/web/Default.aspx?sid=schodze/hlasovanie/schodze"
 URL_ZOZNAM_ZAKONOV = "https://www.nrsr.sk/web/Default.aspx?sid=zakony%2fprehlad%2fpredlozene"
@@ -165,6 +165,7 @@ POSLANEC_KRAJ = "kraj"
 POSLANEC_EMAIL = "email"
 POSLANEC_WEB = "web"
 POSLANEC_AKTIVNY = "aktívny"
+POSLANEC_OBDOBIE = "čísloObdobia"
 POSLANEC_INFO_DICT = {
     "meno": POSLANEC_MENO,
     "titul": POSLANEC_TITUL,

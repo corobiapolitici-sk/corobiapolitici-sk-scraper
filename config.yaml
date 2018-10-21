@@ -2,7 +2,7 @@ mongo:
   client:
     port: ~
   database:
-    name: "corobiapolitici"
+    name: "corobiapoliticiall"
     collections:
       raw: "raw"
       parsed: "parsed" 
@@ -10,7 +10,7 @@ mongo:
       
 logging:
   level: "INFO"
-  filename: "corobiapolitici.log"
+  filename: "corobiapolitici2.log"
 
 scrape:
   delay: 0.5

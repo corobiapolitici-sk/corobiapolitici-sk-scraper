@@ -18,6 +18,7 @@ class Scraper:
         self.collection = collection
         self.log = logging.getLogger(str(self.__class__).split("'")[1])
         self.base_url = None
+        self.metadata = None
     
     def get(self, url):
         try:
@@ -46,6 +47,9 @@ class Scraper:
         data = {const.MONGO_URL: url, const.MONGO_HTML: html}
         if entry_id is not None:
             data[const.MONGO_ID] = entry_id
+        if self.metadata is not None:
+            for key, value in self.metadata.items():
+                data[key] = value
         self.collection.update(data, const.MONGO_URL)
 
     def store_all(self, replace=False, **kwargs):
@@ -98,7 +102,8 @@ class Hlasovanie(Scraper):
             if "Hlasovanie" in s.text:
                 break
         last = int(s["href"].split("=")[-1])
-        return [first, last]
+        #return [first, last]'
+        return [1, last]
 
 
 class Zakon(Scraper):
@@ -115,9 +120,10 @@ class Zakon(Scraper):
 
 
 class Poslanec(Scraper):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, obdobie=7, **kwargs):
         super().__init__(*args, **kwargs)
-        self.base_url = const.URL_POSLANCI
+        self.base_url = const.URL_POSLANCI.format(obdobie)
+        self.metadata = {const.POSLANEC_OBDOBIE: obdobie}
 
     def get_start_end_id(self):
             return [1, const.SCRAPE_MAX_ID_POSLANEC]
