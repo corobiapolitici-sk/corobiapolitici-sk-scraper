@@ -69,6 +69,8 @@ PARSE_ERROR_NOT_FOUND = "We are sorry, but an unexpected error occured on the we
 # Neo4j #
 #########
 
+NEO4J_BATCH_INSERT = 10000
+
 # Query formatting
 NEO4J_INTEGER = "ToInteger({})"
 NEO4J_STRING = "{}"
@@ -96,6 +98,7 @@ MONGO_TIMESTAMP = "insertTime"
 MONGO_URL = "url"
 MONGO_HTML = "html"
 MONGO_UNIQUE_ID = "_id"
+MONGO_BATCH_INSERT = 10000
 
 #########
 # Nodes #

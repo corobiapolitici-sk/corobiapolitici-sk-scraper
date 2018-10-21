@@ -15,6 +15,7 @@ class Processing:
         self.target_name = utils.camel2snake(self.name.split(".")[-1])
         self.target_collection = storage.MongoCollection(self.db, self.target_name)
         self.log = logging.getLogger(self.name)
+        self.batch_process = False
         
 
     def entry_generator(self):
@@ -31,13 +32,32 @@ class Processing:
             self.target_collection.update(entry, keys)
             self.log.info("Entry inserted into collection %r", self.target_name)
 
+    def batch_process_all(self):
+        self.target_collection.collection.delete_many({})
+        self.log.info("Deleted all entries in collection %s", self.target_name)
+        entries_stack = []
+        for entry in self.entry_generator():
+            entries_stack.append(entry)
+            if len(entries_stack) == const.MONGO_BATCH_INSERT:    
+                self.target_collection.insert_batch(entries_stack)
+                self.log.info("Batch inserted into collection %r", self.target_name)
+                entries_stack = []
+        self.target_collection.insert_batch(entries_stack)
+        self.log.info("Batch inserted into collection %r", self.target_name)
+
     def import_all_to_neo(self, **kwargs):
         neo = storage.Neo4jDatabase(self.conf[const.CONF_NEO4J])
-        neo.import_objects(self.target_collection, **kwargs)
+        if self.batch_process:
+            neo.batch_import_objects(self.target_collection, **kwargs)
+        else:
+            neo.import_objects(self.target_collection, **kwargs)
         neo.close()
 
     def process_and_store_all(self, **kwargs):
-        self.process_all()
+        if self.batch_process:
+            self.batch_process_all()
+        else:
+            self.process_all()
         self.import_all_to_neo(**kwargs)
 
 #########
@@ -280,6 +300,7 @@ class EdgesPoslanecHlasovanieHlasoval(Edges):
         self.edge_name = const.EDGE_NAME_HLASOVAL
         self.beginning_name = const.NODE_NAME_POSLANEC
         self.ending_name = const.NODE_NAME_HLASOVANIE
+        self.batch_process = True
 
     def entry_generator(self):
         source_collection = utils.get_collection(

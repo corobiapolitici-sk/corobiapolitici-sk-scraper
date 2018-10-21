@@ -30,7 +30,13 @@ class MongoCollection:
     def insert(self, data):
         data[const.MONGO_TIMESTAMP] = datetime.now()
         obj = self.collection.insert_one(data)
-        self.log.info("Inserted data with id %r.", obj.inserted_id)
+        self.log.debug("Inserted data with id %r.", obj.inserted_id)
+
+    def insert_batch(self, entries):
+        for entry in entries:
+            entry[const.MONGO_TIMESTAMP] = datetime.now()
+        self.collection.insert_many(entries)
+        self.log.debug("Inserted %d entries.", len(entries))
 
     def update(self, data, keys):
         if isinstance(keys, str):
@@ -48,18 +54,18 @@ class MongoCollection:
                 return
             else:
                 self.collection.delete_one(query)
-                self.log.info("Entry with key: value pair %r: %r deleted.", 
+                self.log.debug("Entry with key: value pair %r: %r deleted.", 
                     str(keys), str([data[key] for key in keys]).encode("utf-8")) # TODO: only a hotfix
         else:
-            self.log.info("Nothing to update -- inserting instead.")
+            self.log.debug("Nothing to update -- inserting instead.")
         self.insert(data)
 
     def get(self, query, **kwargs):
         entry = self.collection.find_one(query, **kwargs)
         if entry is None:
-            self.log.info("Query found nothing.")
+            self.log.debug("Query found nothing.")
         else:
-            self.log.info("Query found object %r.", entry["_id"])
+            self.log.debug("Query found object %r.", entry["_id"])
         return entry
     
     def get_all(self, query, projections=None):
@@ -100,8 +106,15 @@ class Neo4jDatabase:
 
     def append_temp_csv(self, cols, row):
         entry = {col: utils.date_converter_csv(row[col]) for col in cols}
-        pd.DataFrame(entry, index=[0]).to_csv(
+        pd.DataFrame(entry, columns=cols).to_csv(
             self.temp_csv, mode="a", index=False, header=False)
+
+    def batch_append_temp_csv(self, cols, entries):
+        entries = [{col: utils.date_converter_csv(entry[col]) for col in cols} 
+            for entry in entries]
+        pd.DataFrame(entries, columns=cols).to_csv(
+            self.temp_csv, mode="a", index=False, header=False)
+
 
     def create_query(self, cols, entry, specs):
         query = "LOAD CSV WITH HEADERS FROM \"file:/{}\" AS row\n".format(self.temp_csv)
@@ -155,3 +168,26 @@ class Neo4jDatabase:
             self.log.info("Overall insertion progress: %d / %d.", i+1, len(entries))
         self.session.run(query)
         self.log.info("Objects insertion finished!")
+
+    def batch_import_objects(self, collection, **specs):
+        all_entries = collection.get_all_attribute(const.MONGO_UNIQUE_ID)
+        self.log.info("Batch objects insertion started.")
+        unique_ids = []
+        for i, unique_id in enumerate(all_entries):
+            unique_ids.append(unique_id)
+            if i == 0:
+                entry = collection.get({const.MONGO_UNIQUE_ID: unique_id})
+                del entry[const.MONGO_UNIQUE_ID]
+                cols = list(entry.keys())
+                self.create_temp_csv(cols)
+                query = self.create_query(cols, entry, specs)
+                if len(all_entries) > self.periodic_commit:
+                    query = "USING PERIODIC COMMIT {}\n".format(self.periodic_commit) + query
+            if len(unique_ids) == const.NEO4J_BATCH_INSERT:
+                entries = collection.get_all({const.MONGO_UNIQUE_ID: {"$in": unique_ids}})
+                self.batch_append_temp_csv(cols, entries)
+                self.log.info("Overall batch insertion progress: %d / %d.", i+1, len(all_entries))
+                unique_ids = []
+        self.log.info("Neo4j insertion started.")
+        self.session.run(query)
+        self.log.info("Objects batch insertion finished!")
