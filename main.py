@@ -7,11 +7,14 @@ import storage
 import processing
 import constants as const
 from utils import set_up_logging
+from time import time
 
 def main_routine():
+    t = time()
     with open("config.yaml", "r") as f:
         conf = yaml.load(f)
     set_up_logging(conf[const.CONF_LOGGING])
+    logger = logging.getLogger("Main")
 
     db = storage.MongoDatabase(conf=conf[const.CONF_MONGO])
 
@@ -28,6 +31,8 @@ def main_routine():
     scrape.Zmena(db, conf).store_all()
     html_parser.Zmena(db, conf).parse_all()
 
+    logger.info("Total elapsed time after scrape + parse: %f", time() - t)
+
     processing.NodesHlasovanie(db, conf).process_and_store_all()
     processing.NodesPoslanec(db, conf).process_and_store_all()
     processing.NodesKlub(db, conf).process_and_store_all()
@@ -36,6 +41,8 @@ def main_routine():
     processing.NodesZakon(db, conf).process_and_store_all()
     processing.NodesSpektrum(db, conf).process_and_store_all()
     processing.NodesZmena(db, conf).process_and_store_all()
+
+    logger.info("Total elapsed time after nodes insert: %f", time() - t)
 
     processing.EdgesPoslanecKlubClen(db, conf).process_and_store_all()
     processing.EdgesPoslanecKlubBolClenom(db, conf).process_and_store_all()
@@ -53,6 +60,7 @@ def main_routine():
     processing.EdgesZmenaZakonNavrhnuta(db, conf).process_and_store_all()
     processing.EdgesHlasovanieZmenaHlasovaloO(db, conf).process_and_store_all()
 
+    logger.info("Total elapsed time after edges insert: %f", time() - t)
 
 if __name__ == "__main__":
     main_routine()

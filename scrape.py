@@ -22,7 +22,7 @@ class Scraper:
     def get(self, url):
         try:
             html = get(url).text
-            self.log.info("Content of url %r received.", url)
+            self.log.debug("Content of url %r received.", url)
         except RequestException as e:
             self.log.error(e)
         sleep(self.conf[const.CONF_SCRAPE][const.CONF_SCRAPE_DELAY])
@@ -40,7 +40,7 @@ class Scraper:
             url = self.base_url.format(entry_id)
         if not replace:
             if self.collection.exists({const.MONGO_URL: url}):
-                self.log.info("url %r already in the database -- not replacing", url)
+                self.log.debug("url %r already in the database -- not replacing", url)
                 return
         html = self.get(url)
         data = {const.MONGO_URL: url, const.MONGO_HTML: html}
@@ -56,7 +56,7 @@ class Scraper:
         for i in gen:
             self.store_raw_html(entry_id=i, replace=replace)
             count += 1
-            self.log.info("Scraping total progress: %d / %d",
+            self.log.debug("Scraping total progress: %d / %d",
                 count, n_entries)
         self.log.info("Scraping finished!")
 
@@ -68,10 +68,10 @@ class Scraper:
             default_start_id, default_end_id = self.get_start_end_id()
             if start_id is None:
                 start_id = default_start_id
-                self.log.info("start_id set to default value: %d", start_id)
+                self.log.debug("start_id set to default value: %d", start_id)
             if end_id is None:
                 end_id = default_end_id
-                self.log.info("end_id set to default value: %d", start_id)
+                self.log.debug("end_id set to default value: %d", end_id)
         return range(start_id, end_id + 1)
 
 

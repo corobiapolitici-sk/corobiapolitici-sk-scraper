@@ -15,7 +15,7 @@ class Processing:
         self.target_name = utils.camel2snake(self.name.split(".")[-1])
         self.target_collection = storage.MongoCollection(self.db, self.target_name)
         self.log = logging.getLogger(self.name)
-        self.batch_process = False
+        self.batch_process = True
         
 
     def entry_generator(self):
@@ -248,7 +248,7 @@ class EdgesPoslanecKlubClen(Edges):
                     const.NEO4J_ENDING_ID: klub,
                     const.CLEN_TYP: typ
                 }
-            yield result
+                yield result
 
 
 class EdgesPoslanecVyborClen(Edges):
@@ -300,7 +300,6 @@ class EdgesPoslanecHlasovanieHlasoval(Edges):
         self.edge_name = const.EDGE_NAME_HLASOVAL
         self.beginning_name = const.NODE_NAME_POSLANEC
         self.ending_name = const.NODE_NAME_HLASOVANIE
-        self.batch_process = True
 
     def entry_generator(self):
         source_collection = utils.get_collection(

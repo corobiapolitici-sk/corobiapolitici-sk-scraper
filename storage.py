@@ -25,7 +25,7 @@ class MongoCollection:
         self.name = collection
         self.collection = self.db.database[self.name]
         self.log = logging.getLogger("Mongo-{}".format(self.name))
-        self.log.info("MongoCollection initialized.")
+        self.log.debug("MongoCollection initialized.")
 
     def insert(self, data):
         data[const.MONGO_TIMESTAMP] = datetime.now()
@@ -70,7 +70,7 @@ class MongoCollection:
     
     def get_all(self, query, projections=None):
         entries = list(self.collection.find(query, projections))
-        self.log.info("Query found %d objects.", len(entries))
+        self.log.debug("Query found %d objects.", len(entries))
         return entries
 
     def get_all_attribute(self, attribute):
@@ -137,7 +137,8 @@ class Neo4jDatabase:
         for key in entry:
             if key not in [const.MONGO_ID, const.NEO4J_BEGINNING_ID, const.NEO4J_ENDING_ID]:
                 query += "SET x.{} = {}\n".format(key, typed(key))
-        self.log.info("Query for %r constructed: \n%s", specs[const.NEO4J_OBJECT_TYPE], query)
+        self.log.info("Query for %r constructed.", specs[const.NEO4J_OBJECT_TYPE])
+        self.log.debug("%s", query)
         return query
 
     def type_formatter(self, obj):
@@ -193,4 +194,8 @@ class Neo4jDatabase:
         self.log.info("Overall batch insertion progress: %d / %d.", i+1, len(all_entries))
         self.log.info("Neo4j insertion started.")
         self.session.run(query)
+        if specs[const.NEO4J_OBJECT_TYPE] == const.NEO4J_OBJECT_NODE:
+            query = "CREATE INDEX ON :{}({})".format(specs[const.NEO4J_NODE_NAME], const.MONGO_ID)
+            self.session.run(query)
+            self.log.info("Index on %s created", specs[const.NEO4J_NODE_NAME])
         self.log.info("Objects batch insertion finished!")

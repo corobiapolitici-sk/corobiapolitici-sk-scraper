@@ -17,7 +17,7 @@ scrape:
 
 neo4j:
   client:
-    uri: bolt://localhost:11001
+    uri: bolt://localhost:7687
     auth:
       - "neo4j"
       - "blabla"
