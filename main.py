@@ -30,6 +30,8 @@ def main_routine():
     html_parser.HlasovanieTlace(db, conf).parse_all()
     scrape.Zmena(db, conf).store_all()
     html_parser.Zmena(db, conf).parse_all()
+    scrape.Rozprava(db, conf).store_all()
+    html_parser.Rozprava(db, conf).parse_all()
 
     logger.info("Total elapsed time after scrape + parse: %f", time() - t)
 
@@ -41,6 +43,7 @@ def main_routine():
     processing.NodesZakon(db, conf).process_and_store_all()
     processing.NodesSpektrum(db, conf).process_and_store_all()
     processing.NodesZmena(db, conf).process_and_store_all()
+    processing.NodesRozprava(db, conf).process_and_store_all()
 
     logger.info("Total elapsed time after nodes insert: %f", time() - t)
 
@@ -59,6 +62,8 @@ def main_routine():
     processing.EdgesPoslanecZmenaPodpisal(db, conf).process_and_store_all()
     processing.EdgesZmenaZakonNavrhnuta(db, conf).process_and_store_all()
     processing.EdgesHlasovanieZmenaHlasovaloO(db, conf).process_and_store_all()
+    processing.EdgesPoslanecRozpravaVystupil(db, conf).process_and_store_all()
+    processing.EdgesRozpravaZakonTykalaSa(db, conf).process_and_store_all()
 
     logger.info("Total elapsed time after edges insert: %f", time() - t)
 

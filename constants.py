@@ -11,6 +11,7 @@ URL_ZOZNAM_ZAKONOV = "https://www.nrsr.sk/web/Default.aspx?sid=zakony%2fprehlad%
 URL_ZOZNAM_PREDLOZENYCH = "https://www.nrsr.sk/web/Default.aspx?sid=zakony/sslp&PredkladatelID=0&PredkladatelPoslanecId={}&CisObdobia=7"
 URL_HLASOVANIA_CPT = "https://www.nrsr.sk/web/Default.aspx?sid=schodze/hlasovanie/vyhladavanie_vysledok&CPT={}" 
 URL_ZMENA = "https://www.nrsr.sk/web/Default.aspx?sid=schodze/nrepdn_detail&id={}"
+URL_ROZPRAVA = "https://www.nrsr.sk/web/Default.aspx?sid=schodze/rozprava/vyhladavanie&CisObdobia=7&PoslanecID={}"
 
 ##########
 # Config #
@@ -36,6 +37,7 @@ CONF_MONGO_ZAKON = "zakon"
 CONF_MONGO_LEGISLATIVNAINICIATIVA = "legislativnainiciativa"
 CONF_MONGO_HLASOVANIETLAC = "hlasovanietlace"
 CONF_MONGO_ZMENA = "zmena"
+CONF_MONGO_ROZPRAVA = "rozprava"
 
 ## Prefixes
 CONF_MONGO_RAW = "raw"
@@ -113,6 +115,7 @@ NODE_NAME_DELEGACIA = "Delegácia"
 NODE_NAME_ZAKON = "Zákon"
 NODE_NAME_SPEKTRUM = "Spektrum"
 NODE_NAME_ZMENA = "Zmena"
+NODE_NAME_ROZPRAVA = "Rozprava"
 
 # Fields
 
@@ -324,6 +327,24 @@ ZMENA_DICT = {
     "Hlasovanie o návrhu": ZMENA_HLASOVANIE
 }
 
+# Rozprava
+ROZPRAVA_CAS_ZACIATOK = "časZačiatok"
+ROZPRAVA_CAS_KONIEC = "časKoniec"
+ROZPRAVA_SCHODZA = "čísloSchôdze"
+ROZPRAVA_SCHODZA_DEN = "deňSchôdze"
+ROZPRAVA_SCHODZA_CAST_DNA = "časťDňaSchôdze"
+ROZPRAVA_TLAC = "tlač"
+ROZPRAVA_ZAZNAM_VYSTUPENIA = "záznamVystúpenia"
+ROZPRAVA_ZAZNAM_ROKOVANIA = "záznamRokovania"
+ROZPRAVA_TYP_VYSTUPENIA = "typVystúpenia"
+ROZPRAVA_POSLANEC_ID = "poslanecId"
+ROZPRAVA_POSLANEC_MENO = "meno"
+ROZPRAVA_POSLANEC_PRIEZVISKO = "priezvisko"
+ROZPRAVA_POSLANEC_KLUB = "klub"
+ROZPRAVA_POSLANEC_TYP = "typPoslanca"
+ROZPRAVA_TEXT = "text"
+ROZPRAVA_VYSTUPENIA = "vystúpenia"
+
 #########
 # Edges #
 #########
@@ -338,6 +359,8 @@ EDGE_NAME_BOL_CLEN = "BolČlenom"
 EDGE_NAME_HLASOVALO_O = "HlasovaloO"
 EDGE_NAME_PODPISAL = "Podpísal"
 EDGE_NAME_NAVRHNUTA = "Navrhnutá"
+EDGE_NAME_VYSTUPIL = "Vystúpil"
+EDGE_NAME_TYKALA_SA = "TýkalaSa"
 
 # Fields
 

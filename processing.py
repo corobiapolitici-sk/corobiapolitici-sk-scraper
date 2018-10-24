@@ -200,6 +200,27 @@ class NodesZmena(Nodes):
             entry.pop(const.ZMENA_PREDKLADATEL)
             yield entry
 
+class NodesRozprava(Nodes):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.node_name = const.NODE_NAME_ROZPRAVA
+
+    def entry_generator(self):
+        source_collection = utils.get_collection(
+            const.CONF_MONGO_ROZPRAVA, self.conf, const.CONF_MONGO_PARSED, self.db)
+        pop_fields = [
+            const.ROZPRAVA_TLAC, const.ROZPRAVA_POSLANEC_ID, const.ROZPRAVA_POSLANEC_PRIEZVISKO,
+            const.ROZPRAVA_POSLANEC_MENO, const.ROZPRAVA_POSLANEC_KLUB,
+            const.ROZPRAVA_POSLANEC_TYP]
+        include_fields = [const.MONGO_TIMESTAMP, const.MONGO_URL]
+        for entry in source_collection.iterate_all():
+            for vystupenie in entry[const.ROZPRAVA_VYSTUPENIA]:
+                for field in pop_fields:
+                    vystupenie.pop(field, None)
+                for field in include_fields:
+                    vystupenie[field] = entry[field]
+                yield vystupenie
+
 #########
 # EDGES #
 #########
@@ -610,3 +631,44 @@ class EdgesHlasovanieZmenaHlasovaloO(Edges):
                             const.NEO4J_BEGINNING_ID: int(id_hlas),
                             const.NEO4J_ENDING_ID: int(i)
                         }
+
+class EdgesPoslanecRozpravaVystupil(Edges):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.edge_name = const.EDGE_NAME_VYSTUPIL
+        self.beginning_name = const.NODE_NAME_POSLANEC
+        self.ending_name = const.NODE_NAME_ROZPRAVA
+
+    def entry_generator(self):
+        source_collection = utils.get_collection(
+            const.CONF_MONGO_ROZPRAVA, self.conf, const.CONF_MONGO_PARSED, self.db
+        )
+        for entry in source_collection.iterate_all():
+            for vystupenie in entry[const.ROZPRAVA_VYSTUPENIA]:
+                klub = vystupenie[const.ROZPRAVA_POSLANEC_KLUB]
+                klub = const.KLUB_DICT.get("Klub " + klub, None)
+                yield {
+                    const.NEO4J_BEGINNING_ID: entry[const.MONGO_ID],
+                    const.NEO4J_ENDING_ID: vystupenie[const.MONGO_ID],
+                    const.ROZPRAVA_POSLANEC_KLUB: klub,
+                    const.ROZPRAVA_POSLANEC_TYP: vystupenie[const.ROZPRAVA_POSLANEC_TYP]
+                }
+
+class EdgesRozpravaZakonTykalaSa(Edges):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.edge_name = const.EDGE_NAME_TYKALA_SA
+        self.beginning_name = const.NODE_NAME_ROZPRAVA
+        self.ending_name = const.NODE_NAME_ZAKON
+
+    def entry_generator(self):
+        source_collection = utils.get_collection(
+            const.CONF_MONGO_ROZPRAVA, self.conf, const.CONF_MONGO_PARSED, self.db
+        )
+        for entry in source_collection.iterate_all():
+            for vystupenie in entry[const.ROZPRAVA_VYSTUPENIA]:
+                if const.ROZPRAVA_TLAC in vystupenie:
+                    yield {
+                        const.NEO4J_BEGINNING_ID: vystupenie[const.MONGO_ID],
+                        const.NEO4J_ENDING_ID: vystupenie[const.ROZPRAVA_TLAC]
+                    }

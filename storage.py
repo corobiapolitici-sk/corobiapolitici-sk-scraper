@@ -112,6 +112,7 @@ class Neo4jDatabase:
     def batch_append_temp_csv(self, cols, entries):
         entries = [{col: utils.date_converter_csv(entry[col]) for col in cols} 
             for entry in entries]
+        self.log.info("%s", str(entries))
         pd.DataFrame(entries, columns=cols).to_csv(
             self.temp_csv, mode="a", index=False, header=False)
 

@@ -160,3 +160,15 @@ class Zmena(Scraper):
             for zmeny in collection.get_all_attribute(const.ZAKON_ZMENY) 
             for zmena_id in zmeny
         ]
+
+class Rozprava(Scraper):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.base_url = const.URL_ROZPRAVA
+    
+    def create_id_generator(self):
+        collection = utils.get_collection(
+            const.CONF_MONGO_POSLANEC, self.conf, const.CONF_MONGO_PARSED, self.db
+        )
+        poslanci_id = collection.get_all_attribute(const.MONGO_ID)
+        return poslanci_id

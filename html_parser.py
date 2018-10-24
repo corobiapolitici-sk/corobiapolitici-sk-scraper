@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import constants as const
 import storage
@@ -268,4 +268,60 @@ class Zmena(HTMLParser):
             if dokument is not None:
                 entry[const.ZMENA_DOKUMENT] = dokument["href"]
         return entry
-        
+
+class Rozprava(HTMLParser):
+    def extract_structure(self, entry):
+        soup = BeautifulSoup(entry.pop(const.MONGO_HTML), features="lxml")
+        table = soup.find("table", attrs={"class": "tab_zoznam"})
+        if table is None:
+            return
+        entry[const.ROZPRAVA_VYSTUPENIA] = []
+        for row in table("tr", attrs={"class": "tab_zoznam_nalt"}):
+            info = {}
+            date = row.find("span", attrs={"class": "daily_info_speech_header_left"}).text.strip()
+            start_time, end_time = self.parse_date(date)
+            info[const.ROZPRAVA_CAS_ZACIATOK] = start_time
+            info[const.ROZPRAVA_CAS_KONIEC] = end_time
+
+            schodza, tlac = row("span", attrs={"class": "daily_info_speech_header_middle"})
+            tokens = schodza.text.strip().split("-")
+            info[const.ROZPRAVA_SCHODZA] = int(tokens[0].strip().split(".")[0])
+            info[const.ROZPRAVA_SCHODZA_DEN] = int(tokens[1].strip().split(".")[0])
+            info[const.ROZPRAVA_SCHODZA_CAST_DNA] = tokens[2].strip()
+            tlac = tlac.find("a")
+            if tlac is not None:
+                info[const.ROZPRAVA_TLAC] = int(tlac.text.strip())
+            
+            links, vystupenie = row("span", attrs={"class": "daily_info_speech_header_right"})
+            links = links("a")
+            info[const.ROZPRAVA_ZAZNAM_VYSTUPENIA] = links[0]["href"]
+            info[const.ROZPRAVA_ZAZNAM_ROKOVANIA] = links[1]["href"]
+            info[const.ROZPRAVA_TYP_VYSTUPENIA] = vystupenie.find("em").text.strip()
+
+            info[const.MONGO_ID] = int(info[const.ROZPRAVA_ZAZNAM_VYSTUPENIA].split("=")[-1])
+
+            tokens = row("span", attrs={"class": ""})
+            priezvisko, meno = tokens[0].text.split(",")
+            info[const.ROZPRAVA_POSLANEC_PRIEZVISKO] = priezvisko.strip()
+            info[const.ROZPRAVA_POSLANEC_MENO] = meno.strip()
+            info[const.ROZPRAVA_POSLANEC_KLUB] = tokens[1].text.strip()[1:-1]
+            info[const.ROZPRAVA_POSLANEC_TYP] = tokens[2].text.split("-")[-1].strip()
+            info[const.ROZPRAVA_TEXT] = tokens[3].text.strip().replace(
+                "\r", " ").replace("\n", " ")
+            entry[const.ROZPRAVA_VYSTUPENIA].append(info)
+        return entry
+    
+
+    def parse_date(self, date):
+        tokens = date.split("-")
+        start_time = datetime.strptime(tokens[0].strip(), "%d. %m. %Y %H:%M:%S")
+        end_time = datetime.combine(
+            start_time.date(),
+            datetime.strptime(tokens[1].strip(), "%H:%M:%S").time())
+        if end_time < start_time:
+            self.log.debug("start_time: %s, end_time: %s", str(start_time), str(end_time))
+            if end_time - start_time > timedelta(hours=12): # midnight between start and end
+                end_time += timedelta(days=1)
+            else: # a mistake in the input
+                end_time = start_time 
+        return start_time, end_time
