@@ -285,7 +285,7 @@ class Rozprava(HTMLParser):
 
             schodza, tlac = row("span", attrs={"class": "daily_info_speech_header_middle"})
             tokens = schodza.text.strip().split("-")
-            info[const.ROZPRAVA_SCHODZA] = int(tokens[0].strip().split(".")[0])
+            info[const.ROZPRAVA_SCHODZA] = int(tokens[0].replace("."," ").strip().split(" ")[0])
             info[const.ROZPRAVA_SCHODZA_DEN] = int(tokens[1].strip().split(".")[0])
             info[const.ROZPRAVA_SCHODZA_CAST_DNA] = tokens[2].strip()
             tlac = tlac.find("a")

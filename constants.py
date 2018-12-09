@@ -51,6 +51,7 @@ CONF_NEO4J_CLIENT = "client"
 CONF_NEO4J_AUTH = "auth"
 CONF_NEO4J_URI = "uri"
 CONF_NEO4J_TEMP_CSV = "temp_csv"
+CONF_NEO4J_IMPORT_PATH = "import_path"
 CONF_NEO4J_PERIODIC_COMMIT = "periodic_commit"
 
 # Logging

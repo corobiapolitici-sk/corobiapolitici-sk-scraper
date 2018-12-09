@@ -13,7 +13,7 @@ logging:
   filename: "corobiapolitici.log"
 
 scrape:
-  delay: 0.5
+  delay: 0.1
 
 neo4j:
   client:
@@ -21,5 +21,6 @@ neo4j:
     auth:
       - "neo4j"
       - "blabla"
-  temp_csv: "C:/Users/dcsiba/Documents/temp_neo4j.csv"
+  import_path: "/var/lib/neo4j/import/"
+  temp_csv: "temp_corobiapolitici.csv"
   periodic_commit: 10000

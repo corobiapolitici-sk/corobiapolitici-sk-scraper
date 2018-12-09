@@ -172,3 +172,33 @@ class Rozprava(Scraper):
         )
         poslanci_id = collection.get_all_attribute(const.MONGO_ID)
         return poslanci_id
+
+    def process_query(obdobie, id):
+        # zacne strankou id, poslanec, dostane nieco a potom incrementuje tie cisla
+        # na kazdu aplikuje process page, az pokial process page nevrati False
+        url_format = "https://www.nrsr.sk/web/Default.aspx?sid=schodze/rozprava/vyhladavanie&CisObdobia={}&PoslanecID={}"
+        url = url_format.format(obdobie, id)
+        br = RoboBrowser(parser='html.parser', history=False)
+        br.open(url)
+
+        ans = process_page(br.parsed, obdobie, id, 1)
+        if not ans:
+            return
+
+        n = 2
+        more = True
+        while more:
+            form = br.get_form(id="_f")
+            js_prepare_form(form, "_sectionLayoutContainer$ctl01$_resultGrid", "Page${}".format(n))
+            br.submit_form(form)
+            more = process_page(br.parsed, obdobie, id, n)
+            n += 1
+
+    @staticmethod
+    def js_prepare_form(form, event_target, event_argument):
+        """Emulate js __doPostBack function used by nrsr.sk"""
+        new_field = Input('<input name="__EVENTARGUMENT" value="{}" />'.format(event_argument))
+        form.add_field(new_field)
+        new_field = Input('<input name="__EVENTTARGET" value="{}" />'.format(event_target))
+        form.add_field(new_field)
+        form.fields.pop("_sectionLayoutContainer$ctl01$_searchButton")

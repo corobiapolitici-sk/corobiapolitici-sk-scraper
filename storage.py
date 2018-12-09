@@ -6,6 +6,7 @@ import yaml
 import logging
 import pandas as pd
 import utils
+import os
 
 class MongoDatabase:
     def __init__(self, conf):
@@ -93,6 +94,8 @@ class Neo4jDatabase:
         self.client = GraphDatabase.driver(self.uri, auth=self.auth)
         self.session = self.client.session() #pylint: disable=E1111
         self.temp_csv = self.conf[const.CONF_NEO4J_TEMP_CSV]
+        self.temp_csv_location = os.path.join(
+            self.conf[const.CONF_NEO4J_IMPORT_PATH], self.temp_csv)
         self.periodic_commit = self.conf[const.CONF_NEO4J_PERIODIC_COMMIT]
         self.log = logging.getLogger("Neo4j")
         self.log.info("Neo4j database initialized.")
@@ -101,24 +104,23 @@ class Neo4jDatabase:
         self.client.close()
 
     def create_temp_csv(self, cols):
-        pd.DataFrame(columns=cols).to_csv(self.temp_csv, index=False)
-        self.log.info("Temporary csv file created at %r.", self.temp_csv)
+        pd.DataFrame(columns=cols).to_csv(self.temp_csv_location, index=False)
+        self.log.info("Temporary csv file created at %r.", self.temp_csv_location)
 
     def append_temp_csv(self, cols, row):
         entry = {col: utils.date_converter_csv(row[col]) for col in cols}
         pd.DataFrame(entry, columns=cols).to_csv(
-            self.temp_csv, mode="a", index=False, header=False)
+            self.temp_csv_location, mode="a", index=False, header=False)
 
     def batch_append_temp_csv(self, cols, entries):
         entries = [{col: utils.date_converter_csv(entry[col]) for col in cols} 
             for entry in entries]
-        self.log.info("%s", str(entries))
         pd.DataFrame(entries, columns=cols).to_csv(
-            self.temp_csv, mode="a", index=False, header=False)
+            self.temp_csv_location, mode="a", index=False, header=False)
 
 
     def create_query(self, cols, entry, specs):
-        query = "LOAD CSV WITH HEADERS FROM \"file:/{}\" AS row\n".format(self.temp_csv)
+        query = "LOAD CSV WITH HEADERS FROM \"file:///{}\" AS row\n".format(self.temp_csv)
         checknull = "(CASE WHEN {{}} = \"{}\" THEN null ELSE {{}} END)".format(
             const.NEO4J_NULLVALUE)
         def typed(key):
