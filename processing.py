@@ -646,7 +646,7 @@ class EdgesPoslanecRozpravaVystupil(Edges):
         for entry in source_collection.iterate_all():
             for vystupenie in entry[const.ROZPRAVA_VYSTUPENIA]:
                 klub = vystupenie[const.ROZPRAVA_POSLANEC_KLUB]
-                klub = const.KLUB_DICT.get("Klub " + klub, None)
+                klub = const.KLUB_DICT.get("Klub " + klub, const.NEO4J_NULLVALUE)
                 yield {
                     const.NEO4J_BEGINNING_ID: entry[const.MONGO_ID],
                     const.NEO4J_ENDING_ID: vystupenie[const.MONGO_ID],

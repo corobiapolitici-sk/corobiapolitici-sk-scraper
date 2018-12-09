@@ -20,16 +20,16 @@ class HTMLParser:
         self.source_collection = source_collection
         self.target_collection = target_collection
         self.log = logging.getLogger(str(self.__class__).split("'")[1])
+        self.unique_ids = [const.MONGO_ID]
 
-    def get(self, entry_id):
-        query = {const.MONGO_ID: entry_id}
+    def get(self, query):
         entry = self.source_collection.get(query)
         if entry is None:
-            self.log.debug("No object with id %d in collection %r", 
-                entry_id, self.target_collection.name)
+            self.log.debug("No object satisfying query %s in collection %r", 
+                str(query), self.target_collection.name)
             return
         if const.PARSE_ERROR_NOT_FOUND in entry[const.MONGO_HTML]:
-            self.log.debug("Object id %d corresponds to an empty page", entry_id)
+            self.log.debug("Object id %s corresponds to an empty page", str(query))
             return
         return entry
     
@@ -37,32 +37,32 @@ class HTMLParser:
         return entry
 
     def store(self, data):
-        self.target_collection.update(data, const.MONGO_ID)
+        self.target_collection.update(data, self.unique_ids)
 
-    def parse(self, entry_id):
-        entry = self.get(entry_id)
+    def parse(self, query):
+        entry = self.get(query)
         if entry is None:
             return
         entry = self.extract_structure(entry)
         if entry is None:
-            self.log.debug("Entry %d has invalid structure.", entry_id)
+            self.log.debug("Entry %s has invalid structure.", str(query))
             return
         self.store(entry)
-        self.log.debug("Entry %d parsed!", entry_id)
+        self.log.debug("Entry %d parsed!", str(query))
 
     def parse_all(self):
         self.log.info("Parsing started.")
         for i, entry in enumerate(self.source_collection.iterate_all()):
-            entry_id = entry[const.MONGO_ID]
-            target = self.target_collection.get({const.MONGO_ID: entry_id}, 
+            query = {unique_id: entry[unique_id] for unique_id in self.unique_ids}
+            target = self.target_collection.get(query, 
                 projection=[const.MONGO_TIMESTAMP])
             if target is not None:
-                source_insert = self.source_collection.get({const.MONGO_ID: entry_id},
+                source_insert = self.source_collection.get(query,
                 projection=[const.MONGO_TIMESTAMP])[const.MONGO_TIMESTAMP]
                 if source_insert < target[const.MONGO_TIMESTAMP]:
-                    self.log.debug("Entry %d already parsed.", entry_id)
+                    self.log.debug("Entry %s already parsed.", str(query))
                     continue
-            self.parse(entry_id)
+            self.parse(query)
             self.log.debug("Overall progress: %d items parsed!", i+1)
         self.log.info("Parsing finished!")
 
@@ -270,6 +270,10 @@ class Zmena(HTMLParser):
         return entry
 
 class Rozprava(HTMLParser):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.unique_ids = [const.MONGO_ID, const.MONGO_PAGE]
+
     def extract_structure(self, entry):
         soup = BeautifulSoup(entry.pop(const.MONGO_HTML), features="lxml")
         table = soup.find("table", attrs={"class": "tab_zoznam"})

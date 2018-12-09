@@ -3,6 +3,8 @@ from requests.exceptions import RequestException
 import logging
 from time import sleep
 from bs4 import BeautifulSoup
+import robobrowser
+import robobrowser.forms.fields as rbfields
 
 import storage
 import constants as const
@@ -173,32 +175,38 @@ class Rozprava(Scraper):
         poslanci_id = collection.get_all_attribute(const.MONGO_ID)
         return poslanci_id
 
-    def process_query(obdobie, id):
-        # zacne strankou id, poslanec, dostane nieco a potom incrementuje tie cisla
-        # na kazdu aplikuje process page, az pokial process page nevrati False
-        url_format = "https://www.nrsr.sk/web/Default.aspx?sid=schodze/rozprava/vyhladavanie&CisObdobia={}&PoslanecID={}"
-        url = url_format.format(obdobie, id)
-        br = RoboBrowser(parser='html.parser', history=False)
+    def store_raw_html(self, entry_id, replace):
+        url = self.base_url.format(entry_id)
+        br = robobrowser.RoboBrowser(parser='html.parser', history=False)
         br.open(url)
 
-        ans = process_page(br.parsed, obdobie, id, 1)
-        if not ans:
-            return
-
-        n = 2
-        more = True
-        while more:
+        page = 1
+        while True:
+            if not br.parsed.select(const.SCRAPE_ROZPRAVA_TABLE):
+                break
+            data = {
+                const.MONGO_URL: url,
+                const.MONGO_HTML: str(br.parsed),
+                const.MONGO_PAGE: page,
+                const.MONGO_ID: entry_id}
+            self.collection.update(data, [const.MONGO_URL, const.MONGO_PAGE])
+            sleep(self.conf[const.CONF_SCRAPE][const.CONF_SCRAPE_DELAY])
+            page += 1
             form = br.get_form(id="_f")
-            js_prepare_form(form, "_sectionLayoutContainer$ctl01$_resultGrid", "Page${}".format(n))
+            self.js_prepare_form(
+                form, 
+                const.SCRAPE_ROZPRAVA_FORM, 
+                f"Page${page}")
+            #self.log.info("%s", str(form).split(",")[1:])
             br.submit_form(form)
-            more = process_page(br.parsed, obdobie, id, n)
-            n += 1
 
     @staticmethod
     def js_prepare_form(form, event_target, event_argument):
         """Emulate js __doPostBack function used by nrsr.sk"""
-        new_field = Input('<input name="__EVENTARGUMENT" value="{}" />'.format(event_argument))
+        new_field = rbfields.Input(
+            const.SCRAPE_ROZPRAVA_EVENT_ARGUMENT.format(event_argument))
         form.add_field(new_field)
-        new_field = Input('<input name="__EVENTTARGET" value="{}" />'.format(event_target))
+        new_field = rbfields.Input(
+            const.SCRAPE_ROZPRAVA_EVENT_TARGET.format(event_target))
         form.add_field(new_field)
-        form.fields.pop("_sectionLayoutContainer$ctl01$_searchButton")
+        form.fields.pop(const.SCRAPE_ROZPRAVA_SEARCH_BUTTON)

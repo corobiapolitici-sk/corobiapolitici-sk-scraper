@@ -62,6 +62,11 @@ CONF_LOGGING_FILENAME = "filename"
 # Scrape #
 ##########
 SCRAPE_MAX_ID_POSLANEC = 1000
+SCRAPE_ROZPRAVA_EVENT_ARGUMENT = '<input name="__EVENTARGUMENT" value="{}" />'
+SCRAPE_ROZPRAVA_EVENT_TARGET = '<input name="__EVENTTARGET" value="{}" />'
+SCRAPE_ROZPRAVA_SEARCH_BUTTON = "_sectionLayoutContainer$ctl01$_searchButton"
+SCRAPE_ROZPRAVA_FORM = "_sectionLayoutContainer$ctl01$_resultGrid"
+SCRAPE_ROZPRAVA_TABLE = "#_sectionLayoutContainer_ctl01__resultGrid"
 
 ###########
 # Process #
@@ -102,6 +107,7 @@ MONGO_URL = "url"
 MONGO_HTML = "html"
 MONGO_UNIQUE_ID = "_id"
 MONGO_BATCH_INSERT = 10000
+MONGO_PAGE = "page"
 
 #########
 # Nodes #
