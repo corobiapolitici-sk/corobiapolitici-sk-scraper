@@ -175,29 +175,57 @@ class Rozprava(Scraper):
         poslanci_id = collection.get_all_attribute(const.MONGO_ID)
         return poslanci_id
 
-    def store_raw_html(self, entry_id, replace):
+    def store_raw_html(self, entry_id, replace=False):
+        if replace:
+            self.collection.collection.delete_many({const.MONGO_ID: entry_id})
+            stored_ids = []
+            entry_pages = []
+        else:
+            ids_collection = storage.MongoCollection(self.db, "edges_poslanec_rozprava_vystupil")
+            stored_ids = [
+                entry[const.NEO4J_ENDING_ID] for entry in ids_collection.get_all(
+                    {const.NEO4J_BEGINNING_ID: entry_id}, projections={const.NEO4J_ENDING_ID})
+            ]
+
+            entry_pages = [entry[const.MONGO_PAGE] for entry in self.collection.get_all(
+                {const.MONGO_ID: entry_id}, projections={const.MONGO_PAGE}
+            )]
+            if entry_pages:
+                min_page = min(entry_pages)
+
         url = self.base_url.format(entry_id)
         br = robobrowser.RoboBrowser(parser='html.parser', history=False)
         br.open(url)
 
+        last_page = False
         page = 1
         while True:
             if not br.parsed.select(const.SCRAPE_ROZPRAVA_TABLE):
                 break
+            rozpravy_ids = self.get_page_rozpravy_ids(br.parsed)
+            if rozpravy_ids[0] in stored_ids:
+               break
+            if rozpravy_ids[-1] in stored_ids:
+                last_page = True
+            if entry_pages:
+                store_page = min_page - page
+            else:
+                store_page = page
             data = {
                 const.MONGO_URL: url,
                 const.MONGO_HTML: str(br.parsed),
-                const.MONGO_PAGE: page,
+                const.MONGO_PAGE: store_page,
                 const.MONGO_ID: entry_id}
             self.collection.update(data, [const.MONGO_URL, const.MONGO_PAGE])
             sleep(self.conf[const.CONF_SCRAPE][const.CONF_SCRAPE_DELAY])
+            if last_page:
+                break
             page += 1
             form = br.get_form(id="_f")
             self.js_prepare_form(
                 form, 
                 const.SCRAPE_ROZPRAVA_FORM, 
                 f"Page${page}")
-            #self.log.info("%s", str(form).split(",")[1:])
             br.submit_form(form)
 
     @staticmethod
@@ -210,3 +238,10 @@ class Rozprava(Scraper):
             const.SCRAPE_ROZPRAVA_EVENT_TARGET.format(event_target))
         form.add_field(new_field)
         form.fields.pop(const.SCRAPE_ROZPRAVA_SEARCH_BUTTON)
+
+    @staticmethod
+    def get_page_rozpravy_ids(soup):
+        return [
+            int(span.find("a")["href"].split("=")[-1]) 
+            for span in soup("span", attrs={"class": "daily_info_speech_header_right"})
+            if span.find("a")]

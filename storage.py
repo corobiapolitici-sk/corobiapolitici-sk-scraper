@@ -123,7 +123,6 @@ class Neo4jDatabase:
         query = "LOAD CSV WITH HEADERS FROM \"file:///{}\" AS row\n".format(self.temp_csv)
         checknull = "(CASE WHEN {{}} = \"{}\" THEN null ELSE {{}} END)".format(
             const.NEO4J_NULLVALUE)
-        self.log.info("%s", entry)
         def typed(key):
             rowdot = "row.{}".format(key)
             return checknull.format(rowdot, self.type_formatter(entry[key])(rowdot))
