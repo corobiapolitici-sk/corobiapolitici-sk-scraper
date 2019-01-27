@@ -117,9 +117,9 @@ MONGO_PAGE = "page"
 NODE_NAME_KLUB = "Klub"
 NODE_NAME_POSLANEC = "Poslanec"
 NODE_NAME_HLASOVANIE = "Hlasovanie"
-NODE_NAME_VYBOR = "Výbor"
-NODE_NAME_DELEGACIA = "Delegácia"
-NODE_NAME_ZAKON = "Zákon"
+NODE_NAME_VYBOR = "Vybor"
+NODE_NAME_DELEGACIA = "Delegacia"
+NODE_NAME_ZAKON = "Zakon"
 NODE_NAME_SPEKTRUM = "Spektrum"
 NODE_NAME_ZMENA = "Zmena"
 NODE_NAME_ROZPRAVA = "Rozprava"
@@ -127,24 +127,24 @@ NODE_NAME_ROZPRAVA = "Rozprava"
 # Fields
 
 ## Hlasovanie
-HLASOVANIE_CAS = "časHlasovania"
-HLASOVANIE_CISLO = "čísloHlasovania"
-HLASOVANIE_OBDOBIE = "čísloObdobia"
+HLASOVANIE_CAS = "casHlasovania"
+HLASOVANIE_CISLO = "cisloHlasovania"
+HLASOVANIE_OBDOBIE = "cisloObdobia"
 HLASOVANIE_IDZAKZBOR = "idZakZbor"
-HLASOVANIE_SCHODZA = "čísloSchôdze"
-HLASOVANIE_NAZOV = "názovHlasovania"
-HLASOVANIE_VYSLEDOK = "výsledokHlasovania"
-HLASOVANIE_INDIVIDUALNE = "individuálne"
+HLASOVANIE_SCHODZA = "cisloSchodze"
+HLASOVANIE_NAZOV = "nazovHlasovania"
+HLASOVANIE_VYSLEDOK = "vysledokHlasovania"
+HLASOVANIE_INDIVIDUALNE = "individualne"
 HLASOVANIE_KLUB = "klub"
 HLASOVANIE_HLAS = "hlas"
-HLASOVANIE_CELE_MENO = "celéMeno"
-HLASOVANIE_SURHN_PRITOMNI = "súhrnPrítomní"
-HLASOVANIE_SURHN_HLASUJUCICH = "súhrnHlasujúcich"
-HLASOVANIE_SURHN_ZA = "súhrnZa"
-HLASOVANIE_SURHN_PROTI = "súhrnProti"
-HLASOVANIE_SURHN_ZDRZALO = "súhrnZdržalo"
-HLASOVANIE_SURHN_NEHLASOVALO = "súhrnNehlasovalo"
-HLASOVANIE_SUHRN_NEPRITOMNI = "súhrnNeprítomní"
+HLASOVANIE_CELE_MENO = "celeMeno"
+HLASOVANIE_SURHN_PRITOMNI = "suhrnPritomni"
+HLASOVANIE_SURHN_HLASUJUCICH = "suhrnHlasujucich"
+HLASOVANIE_SURHN_ZA = "suhrnZa"
+HLASOVANIE_SURHN_PROTI = "suhrnProti"
+HLASOVANIE_SURHN_ZDRZALO = "suhrnZdrzalo"
+HLASOVANIE_SURHN_NEHLASOVALO = "suhrnNehlasovalo"
+HLASOVANIE_SUHRN_NEPRITOMNI = "suhrnNepritomni"
 HLASOVANIE_SUHRN_DICT = {
     "Prítomní": HLASOVANIE_SURHN_PRITOMNI,
     "Hlasujúcich": HLASOVANIE_SURHN_HLASUJUCICH,
@@ -167,17 +167,19 @@ HLASOVANIE_URL_DICT = {
 ## Poslanec
 POSLANEC_PRIEZVISKO = "priezvisko"
 POSLANEC_MENO = "meno"
-POSLANEC_CLENSTVO = "členstvo"
+POSLANEC_CLENSTVO = "clenstvo"
 POSLANEC_FOTO = "fotografia"
-POSLANEC_NARODENY = "narodený"
+POSLANEC_NARODENY = "narodeny"
 POSLANEC_KANDIDOVAL = "kandidovalZa"
 POSLANEC_TITUL = "titul"
-POSLANEC_NARODNOST = "národnosť"
+POSLANEC_NARODNOST = "narodnost"
 POSLANEC_BYDLISKO = "bydlisko"
 POSLANEC_KRAJ = "kraj"
 POSLANEC_EMAIL = "email"
 POSLANEC_WEB = "web"
-POSLANEC_AKTIVNY = "aktívny"
+POSLANEC_AKTIVNY = "aktivny"
+POSLANEC_DELEGACIA = "delegácia"
+POSLANEC_VYBOR = "výbor"
 POSLANEC_INFO_DICT = {
     "meno": POSLANEC_MENO,
     "titul": POSLANEC_TITUL,
@@ -193,16 +195,16 @@ POSLANEC_INFO_DICT = {
 }
 
 ## Klub
-KLUB_NAZOV = "názov"
-KLUB_POCET = "početPoslancov"
-KLUB_LSNS = "ĽSNS"
+KLUB_NAZOV = "nazov"
+KLUB_POCET = "pocetPoslancov"
+KLUB_LSNS = "LSNS"
 KLUB_SAS = "SaS"
 KLUB_SMER = "Smer-SD"
 KLUB_SME_RODINA = "SME RODINA"
 KLUB_SNS = "SNS"
-KLUB_OLANO = "OĽANO"
-KLUB_MOST = "MOST-HÍD"
-KLUB_NEZARADENI = "Nezaradení"
+KLUB_OLANO = "OLANO"
+KLUB_MOST = "MOST-HID"
+KLUB_NEZARADENI = "Nezaradeni"
 KLUB_DICT = {
     "Klub Kotleba - Ľudová strana Naše Slovensko": KLUB_LSNS,
     "Klub ĽS Naše Slovensko": KLUB_LSNS,
@@ -223,31 +225,31 @@ KLUB_DICT = {
 ZAKON_DRUH = "druh"
 ZAKON_POPIS = "popis"
 ZAKON_STAV = "stav"
-ZAKON_VYSLEDOK = "výsledok"
-ZAKON_DATUM_DORUCENIA = "dátumDoručenia"
-ZAKON_NAVRHOVATEL = "navrhovateľ"
-ZAKON_NAZOV = "názov"
-ZAKON_POSLEDNE_CPT = "poslednéČPT"
-ZAKON_ROZHODNUTIE_VYBORY = "rozhodnutieVýbory"
-ZAKON_ROZHODNUTIE_GESTORSKY = "rozhodnutieGestorskýVýbor"
-ZAKON_ROZHODNUTIE_VYSLEDOK = "rozhodnutieVýsledok"
-ZAKON_CITANIE1_SCHODZA = "čítanie1ČísloSchôdze"
-ZAKON_CITANIE1_UZNESENIE = "čítanie1Uznesenie"
-ZAKON_CITANIE1_VYBORY = "čítanie1Výbory"
-ZAKON_CITANIE1_GESTORSKY = "čítanie1GestorskýVýbor"
-ZAKON_CITANIE1_SLKLABEL = "čítanie1SlkLabel"
-ZAKON_CITANIE1_VYSLEDOK = "čítanie1Výsledok"
-ZAKON_ROKOVANIE_VYBORY = "rokovanieVýbory"
-ZAKON_PREROKOVANIE_GESTORSKY = "rokovanieDátumGestorskýVýbor"
-ZAKON_GESTORSKY = "gestorskýVýbor"
-ZAKON_CITANIE2_PREROKOVANY = "čítanie2Info"
-ZAKON_CITANIE2_STANOVISKO = "čítanie2Stanovisko"
-ZAKON_CITANIE2_VYSLEDOK = "čítanie2Výsledok"
-ZAKON_CITANIE3_PREROKOVANY = "čítanie3Info"
-ZAKON_CITANIE3_VYSLEDOK = "čítanie3Výsledok"
-ZAKON_REDAKCIA_ODOSLANY = "redakciaOdoslaný"
-ZAKON_REDAKCIA_VYSLEDOK = "redakciaVýsledok"
-ZAKON_REDAKCIA_CISLO = "redakciaČísloZákona"
+ZAKON_VYSLEDOK = "vysledok"
+ZAKON_DATUM_DORUCENIA = "datumDorucenia"
+ZAKON_NAVRHOVATEL = "navrhovatel"
+ZAKON_NAZOV = "nazov"
+ZAKON_POSLEDNE_CPT = "posledneCPT"
+ZAKON_ROZHODNUTIE_VYBORY = "rozhodnutieVybory"
+ZAKON_ROZHODNUTIE_GESTORSKY = "rozhodnutieGestorskýVybor"
+ZAKON_ROZHODNUTIE_VYSLEDOK = "rozhodnutieVysledok"
+ZAKON_CITANIE1_SCHODZA = "citanie1CisloSchodze"
+ZAKON_CITANIE1_UZNESENIE = "citanie1Uznesenie"
+ZAKON_CITANIE1_VYBORY = "citanie1Vybory"
+ZAKON_CITANIE1_GESTORSKY = "citanie1GestorskyVybor"
+ZAKON_CITANIE1_SLKLABEL = "citanie1SlkLabel"
+ZAKON_CITANIE1_VYSLEDOK = "citanie1Vysledok"
+ZAKON_ROKOVANIE_VYBORY = "rokovanieVybory"
+ZAKON_PREROKOVANIE_GESTORSKY = "rokovanieDatumGestorskyVybor"
+ZAKON_GESTORSKY = "gestorskyVybor"
+ZAKON_CITANIE2_PREROKOVANY = "citanie2Info"
+ZAKON_CITANIE2_STANOVISKO = "citanie2Stanovisko"
+ZAKON_CITANIE2_VYSLEDOK = "citanie2Vysledok"
+ZAKON_CITANIE3_PREROKOVANY = "citanie3Info"
+ZAKON_CITANIE3_VYSLEDOK = "citanie3Vysledok"
+ZAKON_REDAKCIA_ODOSLANY = "redakciaOdoslany"
+ZAKON_REDAKCIA_VYSLEDOK = "redakciaVysledok"
+ZAKON_REDAKCIA_CISLO = "redakciaCisloZakona"
 ZAKON_ID_DICT = {
     "_sectionLayoutContainer_ctl01__ProcessStateLabel": ZAKON_STAV,
     "_sectionLayoutContainer_ctl01__CurrentResultLabel": ZAKON_VYSLEDOK,
@@ -284,18 +286,18 @@ ZAKON_ID_DICT = {
     "_sectionLayoutContainer_ctl01_ctl07__ResultLabel": ZAKON_REDAKCIA_VYSLEDOK,
     "_sectionLayoutContainer_ctl01_ctl07__CiastkaLabel": ZAKON_REDAKCIA_CISLO
 }
-ZAKON_ZMENY = "návrhyZmien"
-ZAKON_ZMENY_CAS = "časNávrhu"
-ZAKON_ZMENY_PREDKLADATEL = "predkladateľ"
+ZAKON_ZMENY = "navrhyZmien"
+ZAKON_ZMENY_CAS = "casNavrhu"
+ZAKON_ZMENY_PREDKLADATEL = "predkladatel"
 ZAKON_ZMENY_URL = "urlZmena"
 ZAKON_ZMENY_DOKUMENT = "urlDokument"
 ZAKON_ZMENY_HLASOVANIE_URL = "urlHlasovanie"
 ZAKON_ZMENY_HLASOVANIE_ID = "idHlasovanie"
-ZAKON_ZMENY_HLASOVANIE_VYSLEDOK = "výsledokHlasovanie"
+ZAKON_ZMENY_HLASOVANIE_VYSLEDOK = "vysledokHlasovanie"
 
 ## Spektrum
-SPEKTRUM_KOALICIA = "Koalícia"
-SPEKTRUM_OPOZICIA = "Opozícia"
+SPEKTRUM_KOALICIA = "Koalicia"
+SPEKTRUM_OPOZICIA = "Opozicia"
 SPEKTRUM_CLEN = {
     KLUB_LSNS: SPEKTRUM_OPOZICIA,
     KLUB_SAS: SPEKTRUM_OPOZICIA,
@@ -308,19 +310,19 @@ SPEKTRUM_CLEN = {
 }
 
 ## PredlozilZakon
-PREDLOZILZAKON_LIST = "zoznamZákonov"
+PREDLOZILZAKON_LIST = "zoznamZakonov"
 
 ## HlasovanieTlac
-HLASOVANIETLAC_LIST = "zoznamHlasovaní"
+HLASOVANIETLAC_LIST = "zoznamHlasovani"
 
 ## Zmena
-ZMENA_NAZOV = "názov"
-ZMENA_PREDKLADATEL = "navrhovateľ"
-ZMENA_SCHODZA = "čísloSchôdze"
-ZMENA_OBDOBIE = "čísloObdobia"
-ZMENA_DATUM = "dátumPodania"
-ZMENA_DALSI = "ďalšíNavrhovatelia"
-ZMENA_PODPISANI = "podpísaníPoslanci"
+ZMENA_NAZOV = "nazov"
+ZMENA_PREDKLADATEL = "navrhovatel"
+ZMENA_SCHODZA = "cisloSchodze"
+ZMENA_OBDOBIE = "cisloObdobia"
+ZMENA_DATUM = "datumPodania"
+ZMENA_DALSI = "dalsiNavrhovatelia"
+ZMENA_PODPISANI = "podpisaniPoslanci"
 ZMENA_HLASOVANIE = "idHlasovania"
 ZMENA_DOKUMENT = "dokument"
 ZMENA_DICT = {
@@ -335,51 +337,51 @@ ZMENA_DICT = {
 }
 
 # Rozprava
-ROZPRAVA_CAS_ZACIATOK = "časZačiatok"
-ROZPRAVA_CAS_KONIEC = "časKoniec"
-ROZPRAVA_SCHODZA = "čísloSchôdze"
-ROZPRAVA_SCHODZA_DEN = "deňSchôdze"
-ROZPRAVA_SCHODZA_CAST_DNA = "časťDňaSchôdze"
-ROZPRAVA_TLAC = "tlač"
-ROZPRAVA_ZAZNAM_VYSTUPENIA = "záznamVystúpenia"
-ROZPRAVA_ZAZNAM_ROKOVANIA = "záznamRokovania"
-ROZPRAVA_TYP_VYSTUPENIA = "typVystúpenia"
+ROZPRAVA_CAS_ZACIATOK = "casZaciatok"
+ROZPRAVA_CAS_KONIEC = "casKoniec"
+ROZPRAVA_SCHODZA = "cisloSchodze"
+ROZPRAVA_SCHODZA_DEN = "denSchodze"
+ROZPRAVA_SCHODZA_CAST_DNA = "castDnaSchodze"
+ROZPRAVA_TLAC = "tlac"
+ROZPRAVA_ZAZNAM_VYSTUPENIA = "zaznamVystupenia"
+ROZPRAVA_ZAZNAM_ROKOVANIA = "zaznamRokovania"
+ROZPRAVA_TYP_VYSTUPENIA = "typVystupenia"
 ROZPRAVA_POSLANEC_ID = "poslanecId"
 ROZPRAVA_POSLANEC_MENO = "meno"
 ROZPRAVA_POSLANEC_PRIEZVISKO = "priezvisko"
 ROZPRAVA_POSLANEC_KLUB = "klub"
 ROZPRAVA_POSLANEC_TYP = "typPoslanca"
 ROZPRAVA_TEXT = "text"
-ROZPRAVA_VYSTUPENIA = "vystúpenia"
+ROZPRAVA_VYSTUPENIA = "vystupenia"
 
 #########
 # Edges #
 #########
 
 # Names
-EDGE_NAME_CLEN = "Člen"
+EDGE_NAME_CLEN = "Clen"
 EDGE_NAME_HLASOVAL = "Hlasoval"
-EDGE_NAME_NAVRHNUTY = "Navrhnutý"
-EDGE_NAME_GESTORSKY = "Gestorský"
+EDGE_NAME_NAVRHNUTY = "Navrhnuty"
+EDGE_NAME_GESTORSKY = "Gestorsky"
 EDGE_NAME_NAVRHOL = "Navrhol"
-EDGE_NAME_BOL_CLEN = "BolČlenom"
+EDGE_NAME_BOL_CLEN = "BolClenom"
 EDGE_NAME_HLASOVALO_O = "HlasovaloO"
-EDGE_NAME_PODPISAL = "Podpísal"
-EDGE_NAME_NAVRHNUTA = "Navrhnutá"
-EDGE_NAME_VYSTUPIL = "Vystúpil"
-EDGE_NAME_TYKALA_SA = "TýkalaSa"
+EDGE_NAME_PODPISAL = "Podpisal"
+EDGE_NAME_NAVRHNUTA = "Navrhnuta"
+EDGE_NAME_VYSTUPIL = "Vystupil"
+EDGE_NAME_TYKALA_SA = "TykalaSa"
 
 # Fields
 
 ## Clen
-CLEN_NAPOSLEDY = "časNaposledy"
-CLEN_TYP = "typČlenstva"
-CLEN_CLEN = "Člen"
-CLEN_NAHRADNIK = "Náhradník"
+CLEN_NAPOSLEDY = "casNaposledy"
+CLEN_TYP = "typClenstva"
+CLEN_CLEN = "Clen"
+CLEN_NAHRADNIK = "Nahradnik"
 CLEN_PODPREDSEDA = "Podpredseda"
-CLEN_OVEROVATEL = "Overovateľ"
+CLEN_OVEROVATEL = "Overovatel"
 CLEN_PREDSEDA = "Predseda"
-CLEN_VEDUCI = "Vedúci"
+CLEN_VEDUCI = "Veduci"
 CLEN_TYP_DICT = {
     "Člen": CLEN_CLEN,
     "Členka": CLEN_CLEN,
@@ -403,10 +405,10 @@ HLASOVAL_HLAS = "hlas"
 HLASOVAL_KLUB = "klub"
 HLASOVAL_ZA = "Za"
 HLASOVAL_PROTI = "Proti"
-HLASOVAL_ZDRZAL = "Zdržal sa"
-HLASOVAL_NEPRITOMNY = "Neprítomný"
+HLASOVAL_ZDRZAL = "Zdrzal sa"
+HLASOVAL_NEPRITOMNY = "Nepritomny"
 HLASOVAL_NEHLASOVAL = "Nehlasoval"
-HLASOVAL_NEPLATNY = "Neplatný"
+HLASOVAL_NEPLATNY = "Neplatny"
 HLASOVAL_HLAS_DICT = {
     "[Z]": HLASOVAL_ZA,
     "[P]": HLASOVAL_PROTI,
@@ -419,12 +421,12 @@ HLASOVAL_HLAS_DICT = {
 ## Navrhnuty
 NAVRHNUTY_LEHOTA = "lehota"
 NAVRHNUTY_TYP = "typ"
-NAVRHNUTY_GESTORSKY = "Gestorský"
-NAVRHNUTY_DOPLNUJUCI = "Doplňujúci"
+NAVRHNUTY_GESTORSKY = "Gestorsky"
+NAVRHNUTY_DOPLNUJUCI = "Doplnujuci"
 
 ## Navrhol
-NAVRHOL_NAVRHOVATEL = "navrhovateľ"
-NAVRHOL_VLADA = "Vláda"
+NAVRHOL_NAVRHOVATEL = "navrhovatel"
+NAVRHOL_VLADA = "Vlada"
 NAVRHOL_POSLANCI = "Poslanci"
-NAVRHOL_HLAVNY = "Hlavný"
-NAVRHOL_DALSI = "Ďalší"
+NAVRHOL_HLAVNY = "Hlavny"
+NAVRHOL_DALSI = "Dalsi"

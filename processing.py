@@ -131,7 +131,7 @@ class NodesVybor(Nodes):
         orgs = set()
         for entry in source_collection.iterate_all():
             for org in entry[const.POSLANEC_CLENSTVO]:
-                if const.NODE_NAME_VYBOR.lower() in org.lower():
+                if const.POSLANEC_VYBOR.lower() in org.lower():
                     orgs.add(org)
         for org in orgs:
             yield {const.MONGO_ID: org}
@@ -147,7 +147,7 @@ class NodesDelegacia(Nodes):
         orgs = set()
         for entry in source_collection.iterate_all():
             for org in entry[const.POSLANEC_CLENSTVO]:
-                if const.NODE_NAME_DELEGACIA.lower() in org.lower():
+                if const.POSLANEC_DELEGACIA.lower() in org.lower():
                     orgs.add(org)
         for org in orgs:
             yield {const.MONGO_ID: org}
@@ -285,7 +285,7 @@ class EdgesPoslanecVyborClen(Edges):
         )
         for entry in source_collection.iterate_all():
             for org, typ in entry[const.POSLANEC_CLENSTVO].items():
-                if const.NODE_NAME_VYBOR.lower() in org.lower():
+                if const.POSLANEC_VYBOR.lower() in org.lower():
                     result = {
                         const.NEO4J_BEGINNING_ID: entry[const.MONGO_ID],
                         const.NEO4J_ENDING_ID: org,
@@ -307,7 +307,7 @@ class EdgesPoslanecDelegaciaClen(Edges):
         )
         for entry in source_collection.iterate_all():
             for org, typ in entry[const.POSLANEC_CLENSTVO].items():
-                if const.NODE_NAME_DELEGACIA.lower() in org.lower():
+                if const.POSLANEC_DELEGACIA.lower() in org.lower():
                     result = {
                         const.NEO4J_BEGINNING_ID: entry[const.MONGO_ID],
                         const.NEO4J_ENDING_ID: org,
@@ -611,9 +611,9 @@ class EdgesHlasovanieZmenaHlasovaloO(Edges):
             ids = sorted(zmeny.keys())
             names = [zmeny[i][const.ZAKON_ZMENY_PREDKLADATEL].split(",")[0] for i in ids]
             hlas_text = pd.Series({
-                key: value["názovHlasovania"].split("Hlasovanie")[-1] 
+                key: value[const.HLASOVANIE_NAZOV].split("Hlasovanie")[-1] 
                 for key, value in hlasovania.items() 
-                if "druhé čítanie" in value["názovHlasovania"]
+                if "druhé čítanie" in value[const.HLASOVANIE_NAZOV]
             })
             if len(hlas_text) == 0:
                 continue
