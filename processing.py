@@ -5,7 +5,7 @@ import pandas as pd
 import storage
 import constants as const
 import utils
-from datetime import datetime
+from datetime import datetime, timedelta
 
 class Processing:
     def __init__(self, db, conf):
@@ -219,7 +219,22 @@ class NodesRozprava(Nodes):
                     vystupenie.pop(field, None)
                 for field in include_fields:
                     vystupenie[field] = entry[field]
+                vystupenie[const.ROZPRAVA_DLZKA] = self.compute_dlzka_vystupenia(
+                    vystupenie[const.ROZPRAVA_CAS_ZACIATOK], vystupenie[const.ROZPRAVA_CAS_KONIEC]
+                )
                 yield vystupenie
+
+    @staticmethod
+    def compute_dlzka_vystupenia(zaciatok, koniec):
+        dlzka = (koniec - zaciatok).total_seconds()
+        if dlzka < 0:
+            if -dlzka > timedelta(hours=23).total_seconds():  # vystupenie over midnight
+                dlzka += timedelta(days=1).total_seconds()  # end is on the next day
+            else:
+                dlzka = 0  # some mistake
+        return int(dlzka)
+
+
 
 #########
 # EDGES #

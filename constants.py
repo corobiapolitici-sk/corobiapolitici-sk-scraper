@@ -353,6 +353,7 @@ ROZPRAVA_POSLANEC_KLUB = "klub"
 ROZPRAVA_POSLANEC_TYP = "typPoslanca"
 ROZPRAVA_TEXT = "text"
 ROZPRAVA_VYSTUPENIA = "vystupenia"
+ROZPRAVA_DLZKA = "dlzkaVystupenia"
 
 #########
 # Edges #
