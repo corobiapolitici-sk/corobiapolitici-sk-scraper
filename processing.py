@@ -16,7 +16,7 @@ class Processing:
         self.target_collection = storage.MongoCollection(self.db, self.target_name)
         self.log = logging.getLogger(self.name)
         self.batch_process = True
-        
+
 
     def entry_generator(self):
         pass
@@ -38,7 +38,7 @@ class Processing:
         entries_stack = []
         for entry in self.entry_generator():
             entries_stack.append(entry)
-            if len(entries_stack) == const.MONGO_BATCH_INSERT:    
+            if len(entries_stack) == const.MONGO_BATCH_INSERT:
                 self.target_collection.insert_batch(entries_stack)
                 self.log.info("Batch inserted into collection %r", self.target_name)
                 entries_stack = []
@@ -98,7 +98,7 @@ class NodesPoslanec(Nodes):
         for entry in source_collection.iterate_all():
             del entry[const.POSLANEC_CLENSTVO]
             yield entry
-        
+
 
 
 class NodesKlub(Nodes):
@@ -113,7 +113,7 @@ class NodesKlub(Nodes):
         last_entry = source_collection.get({}, projection=[const.HLASOVANIE_INDIVIDUALNE],
             sort=[(const.MONGO_ID, -1)])
         hlasy = last_entry[const.HLASOVANIE_INDIVIDUALNE].values()
-        kluby = [value[const.HLASOVANIE_KLUB] for value in hlasy] 
+        kluby = [value[const.HLASOVANIE_KLUB] for value in hlasy]
         values, counts = np.unique(kluby, return_counts=True)
         for val, count in zip(values, counts):
             val = utils.parse_klub(val)
@@ -173,7 +173,7 @@ class NodesZakon(Nodes):
         ]
         for entry in source_collection.iterate_all():
             yield {
-                field: entry[field] if field in entry else const.NEO4J_NULLVALUE 
+                field: entry[field] if field in entry else const.NEO4J_NULLVALUE
                 for field in fields
             }
 
@@ -360,7 +360,7 @@ class EdgesVyborZakonNavrhnuty(Edges):
 
     def entry_generator(self):
         vybory = [
-            entry[const.MONGO_ID] 
+            entry[const.MONGO_ID]
             for entry in storage.MongoCollection(self.db, "nodes_vybor").iterate_all()
         ]
         source_collection = utils.get_collection(
@@ -390,7 +390,7 @@ class EdgesVyborZakonNavrhnuty(Edges):
                         flag = True
                     if flag:
                         yield result
-    
+
     def get_lehota(self, sprava):
         datum = sprava.split("prerokovanie ")[-1].strip()
         if datum == sprava or datum == "ihneď.":
@@ -475,7 +475,7 @@ class EdgesPoslanecKlubBolClenom(Edges):
                 poslanci[poslanec_id] = values
         for entry in poslanci.values():
             yield entry
-    
+
 class EdgesSpektrumZakonNavrhol(Edges):
     def __init__(self, *args):
         super().__init__(*args)
@@ -503,17 +503,17 @@ class EdgesSpektrumZakonNavrhol(Edges):
                 }
             elif const.NAVRHOL_POSLANCI.lower() in navrhovatel.lower():
                 poslanci = [
-                    navrh[const.NEO4J_BEGINNING_ID] 
+                    navrh[const.NEO4J_BEGINNING_ID]
                     for navrh in col_navrh.get_all({const.NEO4J_ENDING_ID : entry[const.MONGO_ID]})
                 ]
                 if not poslanci:
                     continue
                 kluby = [
-                    col_klub.get({const.NEO4J_BEGINNING_ID: poslanec_id})[const.NEO4J_ENDING_ID] 
+                    col_klub.get({const.NEO4J_BEGINNING_ID: poslanec_id})[const.NEO4J_ENDING_ID]
                     for poslanec_id in poslanci
                 ]
                 spektrum = [
-                    col_spektrum.get({const.NEO4J_BEGINNING_ID: klub})[const.NEO4J_ENDING_ID] 
+                    col_spektrum.get({const.NEO4J_BEGINNING_ID: klub})[const.NEO4J_ENDING_ID]
                     for klub in kluby
                 ]
                 result = {
@@ -626,8 +626,8 @@ class EdgesHlasovanieZmenaHlasovaloO(Edges):
             ids = sorted(zmeny.keys())
             names = [zmeny[i][const.ZAKON_ZMENY_PREDKLADATEL].split(",")[0] for i in ids]
             hlas_text = pd.Series({
-                key: value[const.HLASOVANIE_NAZOV].split("Hlasovanie")[-1] 
-                for key, value in hlasovania.items() 
+                key: value[const.HLASOVANIE_NAZOV].split("Hlasovanie")[-1]
+                for key, value in hlasovania.items()
                 if "druhé čítanie" in value[const.HLASOVANIE_NAZOV]
             })
             if len(hlas_text) == 0:

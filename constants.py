@@ -9,7 +9,7 @@ URL_NRSR = "https://www.nrsr.sk/web/"
 URL_NRSR_SCHODZE = "https://www.nrsr.sk/web/Default.aspx?sid=schodze/hlasovanie/schodze"
 URL_ZOZNAM_ZAKONOV = "https://www.nrsr.sk/web/Default.aspx?sid=zakony%2fprehlad%2fpredlozene"
 URL_ZOZNAM_PREDLOZENYCH = "https://www.nrsr.sk/web/Default.aspx?sid=zakony/sslp&PredkladatelID=0&PredkladatelPoslanecId={}&CisObdobia=7"
-URL_HLASOVANIA_CPT = "https://www.nrsr.sk/web/Default.aspx?sid=schodze/hlasovanie/vyhladavanie_vysledok&CPT={}" 
+URL_HLASOVANIA_CPT = "https://www.nrsr.sk/web/Default.aspx?sid=schodze/hlasovanie/vyhladavanie_vysledok&CPT={}"
 URL_ZMENA = "https://www.nrsr.sk/web/Default.aspx?sid=schodze/nrepdn_detail&id={}"
 URL_ROZPRAVA = "https://www.nrsr.sk/web/Default.aspx?sid=schodze/rozprava/vyhladavanie&CisObdobia=7&PoslanecID={}"
 
@@ -145,6 +145,7 @@ HLASOVANIE_SURHN_PROTI = "suhrnProti"
 HLASOVANIE_SURHN_ZDRZALO = "suhrnZdrzalo"
 HLASOVANIE_SURHN_NEHLASOVALO = "suhrnNehlasovalo"
 HLASOVANIE_SUHRN_NEPRITOMNI = "suhrnNepritomni"
+HLASOVANIE_SUHRN_NEPLATNY = "suhrnNeplatny"
 HLASOVANIE_SUHRN_DICT = {
     "Prítomní": HLASOVANIE_SURHN_PRITOMNI,
     "Hlasujúcich": HLASOVANIE_SURHN_HLASUJUCICH,
@@ -152,7 +153,8 @@ HLASOVANIE_SUHRN_DICT = {
     "[P] Proti hlasovalo": HLASOVANIE_SURHN_PROTI,
     "[?] Zdržalo sa hlasovania": HLASOVANIE_SURHN_ZDRZALO,
     "[N] Nehlasovalo": HLASOVANIE_SURHN_NEHLASOVALO,
-    "[0] Neprítomní": HLASOVANIE_SUHRN_NEPRITOMNI
+    "[0] Neprítomní": HLASOVANIE_SUHRN_NEPRITOMNI,
+    "[X] Neplatných hlasov": HLASOVANIE_SUHRN_NEPLATNY
 }
 HLASOVANIE_POSLANEC_DICT = {
     "PoslanecID": MONGO_ID,
