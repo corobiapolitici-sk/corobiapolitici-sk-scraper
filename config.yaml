@@ -5,9 +5,8 @@ mongo:
     name: "corobiapolitici"
     collections:
       raw: "raw"
-      parsed: "parsed" 
+      parsed: "parsed"
 
-      
 logging:
   level: "INFO"
   filename: "corobiapolitici.log"
