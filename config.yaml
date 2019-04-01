@@ -19,7 +19,7 @@ neo4j:
     uri: bolt://localhost:7687
     auth:
       - "neo4j"
-      - "blabla"
+      - "h6u4%kr"
   import_path: "/var/lib/neo4j/import/"
   temp_csv: "temp_corobiapolitici.csv"
   periodic_commit: 10000
