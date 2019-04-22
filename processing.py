@@ -17,7 +17,6 @@ class Processing:
         self.log = logging.getLogger(self.name)
         self.batch_process = True
 
-
     def entry_generator(self):
         pass
 
@@ -72,7 +71,6 @@ class Nodes(Processing):
     def import_all_to_neo(self):
         super().import_all_to_neo(object_type=const.NEO4J_OBJECT_NODE, node_name=self.node_name)
 
-
 class NodesHlasovanie(Nodes):
     def __init__(self, *args):
         super().__init__(*args)
@@ -86,7 +84,6 @@ class NodesHlasovanie(Nodes):
             del entry[const.HLASOVANIE_INDIVIDUALNE]
             yield entry
 
-
 class NodesPoslanec(Nodes):
     def __init__(self, *args):
         super().__init__(*args)
@@ -98,8 +95,6 @@ class NodesPoslanec(Nodes):
         for entry in source_collection.iterate_all():
             del entry[const.POSLANEC_CLENSTVO]
             yield entry
-
-
 
 class NodesKlub(Nodes):
     def __init__(self, *args):
@@ -234,8 +229,6 @@ class NodesRozprava(Nodes):
                 dlzka = 0  # some mistake
         return int(dlzka)
 
-
-
 #########
 # EDGES #
 #########
@@ -286,7 +279,6 @@ class EdgesPoslanecKlubClen(Edges):
                 }
                 yield result
 
-
 class EdgesPoslanecVyborClen(Edges):
     def __init__(self, *args):
         super().__init__(*args)
@@ -307,7 +299,6 @@ class EdgesPoslanecVyborClen(Edges):
                         const.CLEN_TYP: const.CLEN_TYP_DICT[typ]
                     }
                     yield result
-
 
 class EdgesPoslanecDelegaciaClen(Edges):
     def __init__(self, *args):

@@ -30,7 +30,7 @@ def date_converter_csv(s):
     if isinstance(s, datetime):
         return parse_datetime_csv(s)
     else:
-        return s 
+        return s
 
 def parse_klub(s):
     return const.KLUB_DICT.get(s, const.KLUB_NEZARADENI)
@@ -38,7 +38,7 @@ def parse_klub(s):
 def set_up_logging(conf):
     filename = conf.pop(const.CONF_LOGGING_FILENAME)
     logging.basicConfig(
-        handlers=[logging.FileHandler(filename, 'w', 'utf-8')], 
+        handlers=[logging.FileHandler(filename, 'w', 'utf-8')],
         **conf)
 
 def get_poslanec_id(db, name): # priezvisko, meno

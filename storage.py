@@ -55,7 +55,7 @@ class MongoCollection:
                 return
             else:
                 self.collection.delete_one(query)
-                self.log.debug("Entry with key: value pair %r: %r deleted.", 
+                self.log.debug("Entry with key: value pair %r: %r deleted.",
                     str(keys), str([data[key] for key in keys]).encode("utf-8")) # TODO: only a hotfix
         else:
             self.log.debug("Nothing to update -- inserting instead.")
@@ -68,7 +68,7 @@ class MongoCollection:
         else:
             self.log.debug("Query found object %r.", entry["_id"])
         return entry
-    
+
     def get_all(self, query, projections=None):
         entries = list(self.collection.find(query, projections))
         self.log.debug("Query found %d objects.", len(entries))
@@ -77,7 +77,7 @@ class MongoCollection:
     def get_all_attribute(self, attribute):
         results = self.get_all({}, [attribute])
         return [res[attribute] for res in results if attribute in res]
-    
+
     def exists(self, query):
         return self.get(query) is not None
 
@@ -99,7 +99,7 @@ class Neo4jDatabase:
         self.periodic_commit = self.conf[const.CONF_NEO4J_PERIODIC_COMMIT]
         self.log = logging.getLogger("Neo4j")
         self.log.info("Neo4j database initialized.")
-    
+
     def close(self):
         self.client.close()
 
@@ -113,11 +113,10 @@ class Neo4jDatabase:
             self.temp_csv_location, mode="a", index=False, header=False)
 
     def batch_append_temp_csv(self, cols, entries):
-        entries = [{col: utils.date_converter_csv(entry[col]) for col in cols} 
+        entries = [{col: utils.date_converter_csv(entry[col]) for col in cols}
             for entry in entries]
         pd.DataFrame(entries, columns=cols).to_csv(
             self.temp_csv_location, mode="a", index=False, header=False)
-
 
     def create_query(self, cols, entry, specs):
         query = "LOAD CSV WITH HEADERS FROM \"file:///{}\" AS row\n".format(self.temp_csv)

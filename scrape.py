@@ -1,3 +1,4 @@
+# Load external modules.
 from requests import get
 from requests.exceptions import RequestException
 import logging
@@ -6,6 +7,7 @@ from bs4 import BeautifulSoup
 import robobrowser
 import robobrowser.forms.fields as rbfields
 
+# Load internal modules.
 import storage
 import constants as const
 import yaml
@@ -20,7 +22,7 @@ class Scraper:
         self.collection = collection
         self.log = logging.getLogger(str(self.__class__).split("'")[1])
         self.base_url = None
-    
+
     def get(self, url):
         try:
             html = get(url).text
@@ -58,8 +60,7 @@ class Scraper:
         for i in gen:
             self.store_raw_html(entry_id=i, replace=replace)
             count += 1
-            self.log.debug("Scraping total progress: %d / %d",
-                count, n_entries)
+            self.log.debug("Scraping total progress: %d / %d", count, n_entries)
         self.log.info("Scraping finished!")
 
     def get_start_end_id(self):
@@ -75,8 +76,6 @@ class Scraper:
                 end_id = default_end_id
                 self.log.debug("end_id set to default value: %d", end_id)
         return range(start_id, end_id + 1)
-
-
 
 class Hlasovanie(Scraper):
     def __init__(self, *args, **kwargs):
@@ -102,19 +101,17 @@ class Hlasovanie(Scraper):
         last = int(s["href"].split("=")[-1])
         return [first, last]
 
-
 class Zakon(Scraper):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.base_url = const.URL_ZAKONY
-    
+
     def get_start_end_id(self):
             first = 1
             soup = self.get_soup(const.URL_ZOZNAM_ZAKONOV)
             last = int(soup.find(
                 "tr", attrs={"class": "tab_zoznam_nonalt"})("td")[1].text.strip())
             return [first, last]
-
 
 class Poslanec(Scraper):
     def __init__(self, *args, **kwargs):
@@ -152,14 +149,14 @@ class Zmena(Scraper):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.base_url = const.URL_ZMENA
-    
+
     def create_id_generator(self):
         collection = utils.get_collection(
             const.CONF_MONGO_ZAKON, self.conf, const.CONF_MONGO_PARSED, self.db
         )
         return [
-            int(zmena_id) 
-            for zmeny in collection.get_all_attribute(const.ZAKON_ZMENY) 
+            int(zmena_id)
+            for zmeny in collection.get_all_attribute(const.ZAKON_ZMENY)
             for zmena_id in zmeny
         ]
 
@@ -167,7 +164,7 @@ class Rozprava(Scraper):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.base_url = const.URL_ROZPRAVA
-    
+
     def create_id_generator(self):
         collection = utils.get_collection(
             const.CONF_MONGO_POSLANEC, self.conf, const.CONF_MONGO_PARSED, self.db
@@ -223,8 +220,8 @@ class Rozprava(Scraper):
             page += 1
             form = br.get_form(id="_f")
             self.js_prepare_form(
-                form, 
-                const.SCRAPE_ROZPRAVA_FORM, 
+                form,
+                const.SCRAPE_ROZPRAVA_FORM,
                 f"Page${page}")
             br.submit_form(form)
 
@@ -242,6 +239,6 @@ class Rozprava(Scraper):
     @staticmethod
     def get_page_rozpravy_ids(soup):
         return [
-            int(span.find("a")["href"].split("=")[-1]) 
+            int(span.find("a")["href"].split("=")[-1])
             for span in soup("span", attrs={"class": "daily_info_speech_header_right"})
             if span.find("a")]

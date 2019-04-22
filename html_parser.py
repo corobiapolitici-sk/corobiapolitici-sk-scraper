@@ -6,7 +6,6 @@ import constants as const
 import storage
 import utils
 
-
 class HTMLParser:
     def __init__(self, db, conf, source_collection=None, target_collection=None):
         self.db = db
@@ -25,14 +24,14 @@ class HTMLParser:
     def get(self, query):
         entry = self.source_collection.get(query)
         if entry is None:
-            self.log.debug("No object satisfying query %s in collection %r", 
+            self.log.debug("No object satisfying query %s in collection %r",
                 str(query), self.target_collection.name)
             return
         if const.PARSE_ERROR_NOT_FOUND in entry[const.MONGO_HTML]:
             self.log.debug("Object id %s corresponds to an empty page", str(query))
             return
         return entry
-    
+
     def extract_structure(self, entry):
         return entry
 
@@ -54,7 +53,7 @@ class HTMLParser:
         self.log.info("Parsing started.")
         for i, entry in enumerate(self.source_collection.iterate_all()):
             query = {unique_id: entry[unique_id] for unique_id in self.unique_ids}
-            target = self.target_collection.get(query, 
+            target = self.target_collection.get(query,
                 projection=[const.MONGO_TIMESTAMP])
             if target is not None:
                 source_insert = self.source_collection.get(query,
@@ -79,7 +78,7 @@ class Hlasovanie(HTMLParser):
             first_box, second_box = soup("div", attrs={"class": "voting_stats_summary_full"})
         except:
             return
-        
+
         for item in first_box("div")[0].find("a")["href"].split("&")[1:-1]:
             tokens = item.split("=")
             entry[const.HLASOVANIE_URL_DICT[tokens[0]]] = int(tokens[1])
@@ -140,7 +139,6 @@ class Poslanec(HTMLParser):
         entry[const.POSLANEC_FOTO] = soup.find("div", attrs={"class": "mp_foto"}).find("img")["src"]
         return entry
 
-
 class Zakon(HTMLParser):
     def extract_structure(self, entry):
         soup = BeautifulSoup(entry.pop(const.MONGO_HTML), features="lxml")
@@ -159,7 +157,7 @@ class Zakon(HTMLParser):
                 entry[field] = datetime.strptime(entry[field].split(",")[0].strip(), "%d. %m. %Y")
         self.add_zmeny(soup, entry, missing_citanie1)
         return entry
-    
+
     def add_one_id(self, span_id, add_one):
         if add_one:
             tokens = span_id.split("_ctl0")
@@ -242,8 +240,8 @@ class Zmena(HTMLParser):
     def extract_structure(self, entry):
         soup = BeautifulSoup(entry.pop(const.MONGO_HTML), features="lxml")
         divs = [
-            div 
-            for div in soup.find("div", attrs={"class": "change_request_details"})("div") 
+            div
+            for div in soup.find("div", attrs={"class": "change_request_details"})("div")
             if div["class"] != ["clear"]
         ]
         for div in divs:
@@ -295,7 +293,7 @@ class Rozprava(HTMLParser):
             tlac = tlac.find("a")
             if tlac is not None:
                 info[const.ROZPRAVA_TLAC] = int(tlac.text.strip())
-            
+
             links, vystupenie = row("span", attrs={"class": "daily_info_speech_header_right"})
             links = links("a")
             info[const.ROZPRAVA_ZAZNAM_VYSTUPENIA] = links[0]["href"]
@@ -314,7 +312,6 @@ class Rozprava(HTMLParser):
                 "\r", " ").replace("\n", " ")
             entry[const.ROZPRAVA_VYSTUPENIA].append(info)
         return entry
-    
 
     def parse_date(self, date):
         tokens = date.split("-")
@@ -327,5 +324,5 @@ class Rozprava(HTMLParser):
             if end_time - start_time > timedelta(hours=12): # midnight between start and end
                 end_time += timedelta(days=1)
             else: # a mistake in the input
-                end_time = start_time 
+                end_time = start_time
         return start_time, end_time
