@@ -24,7 +24,7 @@ def main_routine():
     logger = logging.getLogger('Main')
 
     db = storage.MongoDatabase(conf=config['mongo'])
-
+    """
     scrape.Hlasovanie(db, config).store_all()
     html_parser.Hlasovanie(db, config).parse_all()
     logger.info(f'"Hlasovanie" elapsed time after scrape + parse: {time.time() - begin_time}')
@@ -52,7 +52,7 @@ def main_routine():
     scrape.Rozprava(db, config).store_all()
     html_parser.Rozprava(db, config).parse_all()
     logger.info(f'"Rozprava" elapsed time after scrape + parse: {time.time() - begin_time}')
-
+    """
     processing.NodesHlasovanie(db, config).process_and_store_all()
     processing.NodesPoslanec(db, config).process_and_store_all()
     processing.NodesKlub(db, config).process_and_store_all()
@@ -61,7 +61,9 @@ def main_routine():
     processing.NodesZakon(db, config).process_and_store_all()
     processing.NodesSpektrum(db, config).process_and_store_all()
     processing.NodesZmena(db, config).process_and_store_all()
+    """
     processing.NodesRozprava(db, config).process_and_store_all()
+    """
 
     logger.info(f'Total elapsed time after nodes insert: {time.time() - begin_time}')
 
@@ -80,8 +82,10 @@ def main_routine():
     processing.EdgesPoslanecZmenaPodpisal(db, config).process_and_store_all()
     processing.EdgesZmenaZakonNavrhnuta(db, config).process_and_store_all()
     processing.EdgesHlasovanieZmenaHlasovaloO(db, config).process_and_store_all()
+    """
     processing.EdgesPoslanecRozpravaVystupil(db, config).process_and_store_all()
     processing.EdgesRozpravaZakonTykalaSa(db, config).process_and_store_all()
+    """
 
     logger.info(f'Total elapsed time after edges insert: {time.time() - begin_time}')
 
