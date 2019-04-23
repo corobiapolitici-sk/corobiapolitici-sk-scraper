@@ -1,3 +1,10 @@
+# IDE
+.vscode/.ropeproject
+.vscode/settings.json
+
+# Runtime
 __pycache__
+
+# Project
 corobiapolitici.log
 config.yaml
