@@ -1,18 +1,20 @@
+# Load external modules.
+from datetime import datetime, timedelta
 import logging
 import numpy as np
 import pandas as pd
 
-import storage
+# Load internal modules.
 import constants as const
+import storage
 import utils
-from datetime import datetime, timedelta
 
 class Processing:
     def __init__(self, db, conf):
         self.db = db
         self.conf = conf
         self.name = str(self.__class__).split("'")[1]
-        self.target_name = utils.camel2snake(self.name.split(".")[-1])
+        self.target_name = utils.camel2snake(self.name.split('.')[-1])
         self.target_collection = storage.MongoCollection(self.db, self.target_name)
         self.log = logging.getLogger(self.name)
         self.batch_process = True
@@ -27,13 +29,13 @@ class Processing:
             elif const.NEO4J_OBJECT_EDGE in self.target_name:
                 keys = [const.NEO4J_BEGINNING_ID, const.NEO4J_ENDING_ID]
             else:
-                raise ValueError("Unsupported target name {}".format(self.target_name))
+                raise ValueError(f'Unsupported target name {self.target_name}')
             self.target_collection.update(entry, keys)
-            self.log.info("Entry inserted into collection %r", self.target_name)
+            self.log.info(f'Entry inserted into collection {self.target_name}')
 
     def batch_process_all(self):
         self.target_collection.collection.delete_many({})
-        self.log.info("Deleted all entries in collection %s", self.target_name)
+        self.log.info(f'Deleted all entries in collection {self.target_name}')
         entries_stack = []
         for entry in self.entry_generator():
             entries_stack.append(entry)
@@ -90,8 +92,7 @@ class NodesPoslanec(Nodes):
         self.node_name = const.NODE_NAME_POSLANEC
 
     def entry_generator(self):
-        source_collection = utils.get_collection(
-            const.CONF_MONGO_POSLANEC, self.conf, const.CONF_MONGO_PARSED, self.db)
+        source_collection = utils.get_collection(const.CONF_MONGO_POSLANEC, self.conf, const.CONF_MONGO_PARSED, self.db)
         for entry in source_collection.iterate_all():
             del entry[const.POSLANEC_CLENSTVO]
             yield entry
@@ -102,11 +103,8 @@ class NodesKlub(Nodes):
         self.node_name = const.NODE_NAME_KLUB
 
     def entry_generator(self):
-        source_collection = utils.get_collection(
-            const.CONF_MONGO_HLASOVANIE, self.conf, const.CONF_MONGO_PARSED, self.db
-        )
-        last_entry = source_collection.get({}, projection=[const.HLASOVANIE_INDIVIDUALNE],
-            sort=[(const.MONGO_ID, -1)])
+        source_collection = utils.get_collection(const.CONF_MONGO_HLASOVANIE, self.conf, const.CONF_MONGO_PARSED, self.db)
+        last_entry = source_collection.get({}, projection=[const.HLASOVANIE_INDIVIDUALNE], sort=[(const.MONGO_ID, -1)])
         hlasy = last_entry[const.HLASOVANIE_INDIVIDUALNE].values()
         kluby = [value[const.HLASOVANIE_KLUB] for value in hlasy]
         values, counts = np.unique(kluby, return_counts=True)
@@ -137,8 +135,7 @@ class NodesDelegacia(Nodes):
         self.node_name = const.NODE_NAME_DELEGACIA
 
     def entry_generator(self):
-        source_collection = utils.get_collection(
-            const.CONF_MONGO_POSLANEC, self.conf, const.CONF_MONGO_PARSED, self.db)
+        source_collection = utils.get_collection(const.CONF_MONGO_POSLANEC, self.conf, const.CONF_MONGO_PARSED, self.db)
         orgs = set()
         for entry in source_collection.iterate_all():
             for org in entry[const.POSLANEC_CLENSTVO]:
@@ -168,8 +165,10 @@ class NodesZakon(Nodes):
         ]
         for entry in source_collection.iterate_all():
             yield {
-                field: entry[field] if field in entry else const.NEO4J_NULLVALUE
-                for field in fields
+                field: entry[field]
+                    if field in entry
+                    else const.NEO4J_NULLVALUE
+                    for field in fields
             }
 
 class NodesSpektrum(Nodes):
@@ -236,9 +235,9 @@ class NodesRozprava(Nodes):
 class Edges(Processing):
     def __init__(self, *args):
         super().__init__(*args)
-        self.edge_name = ""
-        self.beginning_name = ""
-        self.ending_name = ""
+        self.edge_name = ''
+        self.beginning_name = ''
+        self.ending_name = ''
 
     def import_all_to_neo(self):
         super().import_all_to_neo(
@@ -352,7 +351,7 @@ class EdgesVyborZakonNavrhnuty(Edges):
     def entry_generator(self):
         vybory = [
             entry[const.MONGO_ID]
-            for entry in storage.MongoCollection(self.db, "nodes_vybor").iterate_all()
+            for entry in storage.MongoCollection(self.db, 'nodes_vybor').iterate_all()
         ]
         source_collection = utils.get_collection(
             const.CONF_MONGO_ZAKON, self.conf, const.CONF_MONGO_PARSED, self.db
@@ -366,7 +365,7 @@ class EdgesVyborZakonNavrhnuty(Edges):
         for entry in source_collection.iterate_all():
             if const.ZAKON_ROZHODNUTIE_VYBORY in entry:
                 sprava = entry[const.ZAKON_ROZHODNUTIE_VYBORY]
-                if sprava == "":
+                if sprava == '':
                     break
                 lehota = self.get_lehota(sprava)
                 for vybor in vybory:
@@ -383,11 +382,11 @@ class EdgesVyborZakonNavrhnuty(Edges):
                         yield result
 
     def get_lehota(self, sprava):
-        datum = sprava.split("prerokovanie ")[-1].strip()
-        if datum == sprava or datum == "ihneď.":
+        datum = sprava.split('prerokovanie ')[-1].strip()
+        if datum == sprava or datum == 'ihneď.':
             return const.NEO4J_NULLVALUE
         else:
-            return datetime.strptime(datum, "%d. %m. %Y.")
+            return datetime.strptime(datum, '%d. %m. %Y.')
 
 class EdgesVyborZakonGestorsky(Edges):
     def __init__(self, *args):
@@ -478,9 +477,9 @@ class EdgesSpektrumZakonNavrhol(Edges):
         source_collection = utils.get_collection(
             const.CONF_MONGO_ZAKON, self.conf, const.CONF_MONGO_PARSED, self.db
         )
-        col_navrh = storage.MongoCollection(self.db, "edges_poslanec_zakon_navrhol") # TODO: fix collection naming
-        col_klub = storage.MongoCollection(self.db, "edges_poslanec_klub_bol_clenom")
-        col_spektrum = storage.MongoCollection(self.db, "edges_klub_spektrum_clen")
+        col_navrh = storage.MongoCollection(self.db, 'edges_poslanec_zakon_navrhol') # TODO: fix collection naming
+        col_klub = storage.MongoCollection(self.db, 'edges_poslanec_klub_bol_clenom')
+        col_spektrum = storage.MongoCollection(self.db, 'edges_klub_spektrum_clen')
         for entry in source_collection.iterate_all():
             if const.ZAKON_NAVRHOVATEL not in entry:
                 continue
@@ -615,11 +614,11 @@ class EdgesHlasovanieZmenaHlasovaloO(Edges):
             hlasovania = zakon.get(const.HLASOVANIETLAC_LIST, {})
             zmeny = entry.get(const.ZAKON_ZMENY, {})
             ids = sorted(zmeny.keys())
-            names = [zmeny[i][const.ZAKON_ZMENY_PREDKLADATEL].split(",")[0] for i in ids]
+            names = [zmeny[i][const.ZAKON_ZMENY_PREDKLADATEL].split(',')[0] for i in ids]
             hlas_text = pd.Series({
-                key: value[const.HLASOVANIE_NAZOV].split("Hlasovanie")[-1]
+                key: value[const.HLASOVANIE_NAZOV].split('Hlasovanie')[-1]
                 for key, value in hlasovania.items()
-                if "druhé čítanie" in value[const.HLASOVANIE_NAZOV]
+                if 'druhé čítanie' in value[const.HLASOVANIE_NAZOV]
             })
             if len(hlas_text) == 0:
                 continue
@@ -630,9 +629,9 @@ class EdgesHlasovanieZmenaHlasovaloO(Edges):
             for j, i in enumerate(ids):
                 hlas_name = hlas_text[hlas_text.str.contains(names[j][:-1])]
                 if counts[j] > 0:
-                    hlas_name = hlas_name[hlas_name.str.contains("{}. návrh".format(counts[j]))]
+                    hlas_name = hlas_name[hlas_name.str.contains(f'{counts[j]}. návrh')]
                 for id_hlas, text in hlas_name.items():
-                    if not "dopracovanie" in text and not "preložiť" in text:
+                    if not 'dopracovanie' in text and not 'preložiť' in text:
                         yield {
                             const.NEO4J_BEGINNING_ID: int(id_hlas),
                             const.NEO4J_ENDING_ID: int(i)
@@ -652,7 +651,7 @@ class EdgesPoslanecRozpravaVystupil(Edges):
         for entry in source_collection.iterate_all():
             for vystupenie in entry[const.ROZPRAVA_VYSTUPENIA]:
                 klub = vystupenie[const.ROZPRAVA_POSLANEC_KLUB]
-                klub = const.KLUB_DICT.get("Klub " + klub, const.NEO4J_NULLVALUE)
+                klub = const.KLUB_DICT.get('Klub ' + klub, const.NEO4J_NULLVALUE)
                 yield {
                     const.NEO4J_BEGINNING_ID: entry[const.MONGO_ID],
                     const.NEO4J_ENDING_ID: vystupenie[const.MONGO_ID],

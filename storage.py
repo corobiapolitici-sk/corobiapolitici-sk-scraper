@@ -1,21 +1,24 @@
-from pymongo import MongoClient
-from neo4j.v1 import GraphDatabase
+# Load external modules.
 from datetime import datetime
-import constants as const
-import yaml
 import logging
-import pandas as pd
-import utils
+from neo4j.v1 import GraphDatabase
 import os
+import pandas as pd
+from pymongo import MongoClient
+import yaml
+
+# Load internal modules.
+import constants as const
+import utils
 
 class MongoDatabase:
     def __init__(self, conf):
         self.conf = conf
-        self.client = MongoClient(**self.conf[const.CONF_MONGO_CLIENT])
-        self.name = self.conf[const.CONF_MONGO_DATABASE][const.CONF_MONGO_DATABASE_NAME]
+        self.client = MongoClient(**self.conf['client'])
+        self.name = self.conf['database']['name']
         self.database = self.client[self.name]
-        self.log = logging.getLogger("Mongo")
-        self.log.info("MongoDatabase initialized with database '%r'.", self.name)
+        self.log = logging.getLogger('Mongo')
+        self.log.info(f'MongoDatabase initialized with database "{self.name}".')
 
     def close(self):
         self.client.close()
@@ -25,53 +28,51 @@ class MongoCollection:
         self.db = db
         self.name = collection
         self.collection = self.db.database[self.name]
-        self.log = logging.getLogger("Mongo-{}".format(self.name))
-        self.log.debug("MongoCollection initialized.")
+        self.log = logging.getLogger(f'Mongo-{self.name}')
+        self.log.debug('MongoCollection initialized.')
 
     def insert(self, data):
         data[const.MONGO_TIMESTAMP] = datetime.now()
         obj = self.collection.insert_one(data)
-        self.log.debug("Inserted data with id %r.", obj.inserted_id)
+        self.log.debug(f'Inserted data with id {obj.inserted_id}.')
 
     def insert_batch(self, entries):
         for entry in entries:
             entry[const.MONGO_TIMESTAMP] = datetime.now()
         self.collection.insert_many(entries)
-        self.log.debug("Inserted %d entries.", len(entries))
+        self.log.debug(f'Inserted {len(entries)} entries.')
 
     def update(self, data, keys):
         if isinstance(keys, str):
             keys = [keys]
         for key in keys:
             if key not in data:
-                self.log.error("The key %r is not in data.", key)
+                self.log.error(f'The key {key} is not in data.')
                 return
         query = {key: data[key] for key in keys}
         dups = list(self.collection.find(query))
         if dups:
             if len(dups) > 1:
-                self.log.error("There are multiple duplicates of %r with value %r.",
-                    str(keys), str([data[key] for key in keys]))
+                self.log.error(f'There are multiple duplicates of {str(keys)} with value {str([data[key] for key in keys])}.')
                 return
             else:
                 self.collection.delete_one(query)
-                self.log.debug("Entry with key: value pair %r: %r deleted.",
-                    str(keys), str([data[key] for key in keys]).encode("utf-8")) # TODO: only a hotfix
+                self.log.debug(f'Entry with key: value pair {str(keys)}: {str([data[key] for key in keys]).encode("utf-8")} deleted.') # TODO: only a hotfix
         else:
-            self.log.debug("Nothing to update -- inserting instead.")
+            self.log.debug('Nothing to update -- inserting instead.')
         self.insert(data)
 
     def get(self, query, **kwargs):
         entry = self.collection.find_one(query, **kwargs)
         if entry is None:
-            self.log.debug("Query found nothing.")
+            self.log.debug('Query found nothing.')
         else:
-            self.log.debug("Query found object %r.", entry["_id"])
+            self.log.debug(f'Query found object {entry["_id"]}.')
         return entry
 
     def get_all(self, query, projections=None):
         entries = list(self.collection.find(query, projections))
-        self.log.debug("Query found %d objects.", len(entries))
+        self.log.debug(f'Query found {len(entries)} objects.')
         return entries
 
     def get_all_attribute(self, attribute):
@@ -94,53 +95,49 @@ class Neo4jDatabase:
         self.client = GraphDatabase.driver(self.uri, auth=self.auth)
         self.session = self.client.session() #pylint: disable=E1111
         self.temp_csv = self.conf[const.CONF_NEO4J_TEMP_CSV]
-        self.temp_csv_location = os.path.join(
-            self.conf[const.CONF_NEO4J_IMPORT_PATH], self.temp_csv)
+        self.temp_csv_location = os.path.join(self.conf[const.CONF_NEO4J_IMPORT_PATH], self.temp_csv)
         self.periodic_commit = self.conf[const.CONF_NEO4J_PERIODIC_COMMIT]
-        self.log = logging.getLogger("Neo4j")
-        self.log.info("Neo4j database initialized.")
+        self.log = logging.getLogger('Neo4j')
+        self.log.info('Neo4j database initialized.')
 
     def close(self):
         self.client.close()
 
     def create_temp_csv(self, cols):
         pd.DataFrame(columns=cols).to_csv(self.temp_csv_location, index=False)
-        self.log.info("Temporary csv file created at %r.", self.temp_csv_location)
+        self.log.info(f'Temporary csv file created at {self.temp_csv_location}.')
 
     def append_temp_csv(self, cols, row):
         entry = {col: utils.date_converter_csv(row[col]) for col in cols}
         pd.DataFrame(entry, columns=cols).to_csv(
-            self.temp_csv_location, mode="a", index=False, header=False)
+            self.temp_csv_location, mode='a', index=False, header=False)
 
     def batch_append_temp_csv(self, cols, entries):
         entries = [{col: utils.date_converter_csv(entry[col]) for col in cols}
             for entry in entries]
         pd.DataFrame(entries, columns=cols).to_csv(
-            self.temp_csv_location, mode="a", index=False, header=False)
+            self.temp_csv_location, mode='a', index=False, header=False)
 
     def create_query(self, cols, entry, specs):
-        query = "LOAD CSV WITH HEADERS FROM \"file:///{}\" AS row\n".format(self.temp_csv)
-        checknull = "(CASE WHEN {{}} = \"{}\" THEN null ELSE {{}} END)".format(
-            const.NEO4J_NULLVALUE)
+        query = f'LOAD CSV WITH HEADERS FROM "file:///{self.temp_csv}" AS row\n'
+        checknull = f'(CASE WHEN {{}} = "{const.NEO4J_NULLVALUE}" THEN null ELSE {{}} END)'
         def typed(key):
-            rowdot = "row.{}".format(key)
+            rowdot = f'row.{key}'
             return checknull.format(rowdot, self.type_formatter(entry[key])(rowdot))
-        fil = lambda key: "{{{}: {}}}".format(const.MONGO_ID, typed(key))
+        fil = lambda key: f'{{{const.MONGO_ID}: {typed(key)}}}'
         if specs[const.NEO4J_OBJECT_TYPE] == const.NEO4J_OBJECT_NODE:
-            query += "MERGE (x:{} {})\n".format(specs[const.NEO4J_NODE_NAME], fil(const.MONGO_ID))
+            query += f'MERGE (x:{specs[const.NEO4J_NODE_NAME]} {fil(const.MONGO_ID)})\n'
         elif specs[const.NEO4J_OBJECT_TYPE] == const.NEO4J_OBJECT_EDGE:
-            query += "MATCH (a:{} {})\n".format(
-                specs[const.NEO4J_BEGINNING_NAME], fil(const.NEO4J_BEGINNING_ID))
-            query += "MATCH (b:{} {})\n".format(
-                specs[const.NEO4J_ENDING_NAME], fil(const.NEO4J_ENDING_ID))
-            query += "MERGE (a)-[x:{}]-(b)\n".format(specs[const.NEO4J_EDGE_NAME])
+            query += f'MATCH (a:{specs[const.NEO4J_BEGINNING_NAME]} {fil(const.NEO4J_BEGINNING_ID)})\n'
+            query += f'MATCH (b:{specs[const.NEO4J_ENDING_NAME]} {fil(const.NEO4J_ENDING_ID)})\n'
+            query += f'MERGE (a)-[x:{specs[const.NEO4J_EDGE_NAME]}]-(b)\n'
         else:
-            raise ValueError("Unknown object type {}".format(specs[const.NEO4J_OBJECT_TYPE]))
+            raise ValueError(f'Unknown object type {specs[const.NEO4J_OBJECT_TYPE]}')
         for key in entry:
             if key not in [const.MONGO_ID, const.NEO4J_BEGINNING_ID, const.NEO4J_ENDING_ID]:
-                query += "SET x.{} = {}\n".format(key, typed(key))
-        self.log.info("Query for %r constructed.", specs[const.NEO4J_OBJECT_TYPE])
-        self.log.debug("%s", query)
+                query += f'SET x.{key} = {typed(key)}\n'
+        self.log.info(f'Query for {specs[const.NEO4J_OBJECT_TYPE]} constructed.')
+        self.log.debug(str(query))
         return query
 
     def type_formatter(self, obj):
@@ -153,11 +150,11 @@ class Neo4jDatabase:
         elif isinstance(obj, str):
             return lambda s: const.NEO4J_STRING.format(s)
         else:
-            raise ValueError("Invalid type {} in neo4j type_formatter".format(type(obj)))
+            raise ValueError(f'Invalid type {type(obj)} in neo4j type_formatter')
 
     def import_objects(self, collection, **specs):
         entries = collection.get_all_attribute(const.MONGO_UNIQUE_ID)
-        self.log.info("Objects insertion started.")
+        self.log.info('Objects insertion started.')
         for i, unique_id in enumerate(entries):
             entry = collection.get({const.MONGO_UNIQUE_ID: unique_id})
             del entry[const.MONGO_UNIQUE_ID]
@@ -166,15 +163,15 @@ class Neo4jDatabase:
                 self.create_temp_csv(cols)
                 query = self.create_query(cols, entry, specs)
                 if len(entries) > self.periodic_commit:
-                    query = "USING PERIODIC COMMIT {}\n".format(self.periodic_commit) + query
+                    query = f'USING PERIODIC COMMIT {self.periodic_commit}\n' + query
             self.append_temp_csv(cols, entry)
-            self.log.info("Overall insertion progress: %d / %d.", i+1, len(entries))
+            self.log.info(f'Overall insertion progress: {i + 1} / {len(entries)}.')
         self.session.run(query)
-        self.log.info("Objects insertion finished!")
+        self.log.info('Objects insertion finished!')
 
     def batch_import_objects(self, collection, **specs):
         all_entries = collection.get_all_attribute(const.MONGO_UNIQUE_ID)
-        self.log.info("Batch objects insertion started.")
+        self.log.info('Batch objects insertion started.')
         unique_ids = []
         for i, unique_id in enumerate(all_entries):
             unique_ids.append(unique_id)
@@ -185,19 +182,19 @@ class Neo4jDatabase:
                 self.create_temp_csv(cols)
                 query = self.create_query(cols, entry, specs)
                 if len(all_entries) > self.periodic_commit:
-                    query = "USING PERIODIC COMMIT {}\n".format(self.periodic_commit) + query
+                    query = f'USING PERIODIC COMMIT {self.periodic_commit}\n' + query
             if len(unique_ids) == const.NEO4J_BATCH_INSERT:
-                entries = collection.get_all({const.MONGO_UNIQUE_ID: {"$in": unique_ids}})
+                entries = collection.get_all({const.MONGO_UNIQUE_ID: {'$in': unique_ids}})
                 self.batch_append_temp_csv(cols, entries)
-                self.log.info("Overall batch insertion progress: %d / %d.", i+1, len(all_entries))
+                self.log.info(f'Overall batch insertion progress: {i + 1} / {len(all_entries)}.')
                 unique_ids = []
-        entries = collection.get_all({const.MONGO_UNIQUE_ID: {"$in": unique_ids}})
+        entries = collection.get_all({const.MONGO_UNIQUE_ID: {'$in': unique_ids}})
         self.batch_append_temp_csv(cols, entries)
-        self.log.info("Overall batch insertion progress: %d / %d.", i+1, len(all_entries))
-        self.log.info("Neo4j insertion started.")
+        self.log.info(f'Overall batch insertion progress: {i + 1} / {len(all_entries)}.')
+        self.log.info('Neo4j insertion started.')
         self.session.run(query)
         if specs[const.NEO4J_OBJECT_TYPE] == const.NEO4J_OBJECT_NODE:
-            query = "CREATE INDEX ON :{}({})".format(specs[const.NEO4J_NODE_NAME], const.MONGO_ID)
+            query = f'CREATE INDEX ON :{specs[const.NEO4J_NODE_NAME]}({const.MONGO_ID})'
             self.session.run(query)
-            self.log.info("Index on %s created", specs[const.NEO4J_NODE_NAME])
-        self.log.info("Objects batch insertion finished!")
+            self.log.info(f'Index on {specs[const.NEO4J_NODE_NAME]} created')
+        self.log.info('Objects batch insertion finished!')

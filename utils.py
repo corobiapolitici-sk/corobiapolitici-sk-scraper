@@ -1,18 +1,24 @@
-import constants as const
-import storage
-import logging
+# Load external modules.
 from datetime import datetime
+import logging
 import re
 
+# Load internal modules.
+import constants as const
+import storage
+
+class Logged:
+    def __init__(self):
+        self.log = logging.getLogger(str(self.__class__).split("'")[1])
+
 def get_collection(obj, conf, stage, db):
-    conf_collections = conf[const.CONF_MONGO][const.CONF_MONGO_DATABASE][
-        const.CONF_MONGO_COLLECTION]
+    conf_collections = conf['mongo']['database']['collections']
     prefix = conf_collections[stage]
     if isinstance(obj, str):
         suffix = obj
     else:
-        suffix = str(obj.__class__).split("'")[1].split(".")[-1].lower()
-    name = "_".join([prefix, suffix])
+        suffix = str(obj.__class__).split("'")[1].split('.')[-1].lower()
+    name = '_'.join([prefix, suffix])
     return storage.MongoCollection(db, name)
 
 def camel_case_split(identifier):
@@ -20,11 +26,11 @@ def camel_case_split(identifier):
     return [m.group(0) for m in matches]
 
 def camel2snake(identifier):
-    return "_".join([s.lower() for s in camel_case_split(identifier)])
+    return '_'.join([s.lower() for s in camel_case_split(identifier)])
 
 def parse_datetime_csv(date):
     """Format standard datetime string to neo4j format."""
-    return "T".join(str(date).split(" "))
+    return 'T'.join(str(date).split(' '))
 
 def date_converter_csv(s):
     if isinstance(s, datetime):
@@ -35,15 +41,11 @@ def date_converter_csv(s):
 def parse_klub(s):
     return const.KLUB_DICT.get(s, const.KLUB_NEZARADENI)
 
-def set_up_logging(conf):
-    filename = conf.pop(const.CONF_LOGGING_FILENAME)
-    logging.basicConfig(
-        handlers=[logging.FileHandler(filename, 'w', 'utf-8')],
-        **conf)
-
 def get_poslanec_id(db, name): # priezvisko, meno
-    col_names = storage.MongoCollection(db, "nodes_poslanec")
-    priezvisko, meno = [s.strip() for s in name.split(",")]
-    poslanec = col_names.get(
-        {const.POSLANEC_PRIEZVISKO: priezvisko, const.POSLANEC_MENO: meno})
-    return poslanec["id"]
+    col_names = storage.MongoCollection(db, 'nodes_poslanec')
+    priezvisko, meno = [s.strip() for s in name.split(',')]
+    poslanec = col_names.get({
+        const.POSLANEC_PRIEZVISKO: priezvisko,
+        const.POSLANEC_MENO: meno
+    })
+    return poslanec['id']
