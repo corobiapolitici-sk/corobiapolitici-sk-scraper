@@ -1,0 +1,70 @@
+LOAD CSV FROM "file:///neo4j_hlasy_nodes.csv" AS row
+CREATE (h:Hlasovanie {id: ToInteger(row[1]), start_time: datetime(row[2]), obdobie: ToInteger(row[3]), schodza: ToInteger(row[4]), schodza_h: ToInteger(row[5]), vysledok: row[6], title: row[7], url: row[8]})
+
+LOAD CSV FROM "file:///neo4j_poslanci_kluby_edges.csv" AS row
+MERGE (p:Poslanec {name: row[1]})
+MERGE (k:Klub {name: row[2]})
+CREATE (p)-[:CLEN]->(k)
+
+LOAD CSV FROM "file:///neo4j_zakony_nodes.csv" AS row
+CREATE (z:Zakon {id: ToInteger(row[1]), start_time: datetime(row[2]), stav: row[3], vysledok: row[4], url: row[5]})
+
+LOAD CSV FROM "file:///neo4j_zmeny_nodes.csv" AS row
+CREATE (z:Zmena {id: ToInteger(row[1]), start_time: datetime(row[2]), document_id: ToInteger(row[3]), url: row[4]})
+
+USING PERIODIC COMMIT 1000
+LOAD CSV FROM "file:///neo4j_poslanec_hlasovanie_edges.csv" AS row
+MERGE (h:Hlasovanie {id: ToInteger(row[1])})
+MERGE (p:Poslanec {name: row[2]})
+CREATE (p)-[:HLASOVAL {hlas: row[3]}]->(h)
+
+LOAD CSV FROM "file:///neo4j_zmeny_hlasovania_edges.csv" AS row
+MERGE (z:Zmena {id: ToInteger(row[1])})
+MERGE (h:Hlasovanie {id: ToInteger(row[2])})
+CREATE (h)-[:HLASOVALO_O]->(z)
+
+LOAD CSV FROM "file:///neo4j_zmeny_predkladatel_edges.csv" AS row
+MERGE (z:Zmena {id: ToInteger(row[1])})
+MERGE (p:Poslanec {name: row[2]})
+CREATE (p)-[:NAVRHOL]->(z)
+
+LOAD CSV FROM "file:///neo4j_zmeny_podpis_edges.csv" AS row
+MERGE (z:Zmena {id: ToInteger(row[1])})
+MERGE (p:Poslanec {name: row[2]})
+CREATE (p)-[:PODPISAL]->(z)
+
+LOAD CSV FROM "file:///neo4j_zakon_posledne_edges.csv" AS row
+MERGE (z:Zakon {id: ToInteger(row[1])})
+MERGE (h:Hlasovanie {id: ToInteger(row[2])})
+CREATE (z)-[:DOHLASOVAL]->(h)
+
+LOAD CSV FROM "file:///neo4j_zakon_navrhovatel_edges.csv" AS row
+MERGE (z:Zakon {id: ToInteger(row[1])})
+MERGE (p:Poslanec {name: row[2]})
+CREATE (p)-[:NAVRHOL]->(z)
+
+LOAD CSV FROM "file:///neo4j_hlasy_zakony_edges.csv" AS row
+MERGE (h:Hlasovanie {id: ToInteger(row[1])})
+MERGE (z:Zakon {id: ToInteger(row[2])})
+CREATE (h)-[:HLASOVALO_O]->(z)
+
+LOAD CSV FROM "file:///neo4j_zakony_zmeny_edges.csv" AS row
+MERGE (z:Zakon {id: ToInteger(row[1])})
+MERGE (z2:Zmena {id: ToInteger(row[2])})
+CREATE (z2)-[:NAVRHNUTA]->(z)
+
+LOAD CSV FROM "file:///neo4j_kluby_spektrum_edges.csv" AS row
+MERGE (s:Spektrum {name: row[1]})
+MERGE (k:Klub {name: row[2]})
+CREATE (k)-[:SUCAST]->(s)
+
+MATCH (p:Poslanec {name: "vláda"})
+MATCH (s:Spektrum {name: "koalícia"})
+CREATE (k:Klub {name: "vláda"})
+CREATE (p)-[:CLEN]->(k)
+CREATE (k)-[:SUCAST]->(s)
+
+LOAD CSV FROM "file:///neo4j_rozpravy_nodes_edges.csv" AS row
+CREATE (r:Rozprava {id: ToInteger(row[0]), start_time: datetime(row[3]), end_time: datetime(row[4]), text: row[5], url: row[6]})
+MERGE (p:Poslanec {name: row[1]})
+CREATE (p)-[:VYSTUPIL {druh: row[2]}]->(r)
