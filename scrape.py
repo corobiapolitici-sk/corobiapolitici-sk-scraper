@@ -201,7 +201,7 @@ class Rozprava(Scraper):
                 break
             page += 1
             form = br.get_form(id='_f')
-            form.add_field(rbfields.Input('<input name="__EVENTARGUMENT" value="_sectionLayoutContainer$ctl01$_resultGrid" />'))
-            form.add_field(rbfields.Input(f'<input name="__EVENTTARGET" value="Page${page}" />'))
+            form.add_field(rbfields.Input(f'<input name="__EVENTARGUMENT" value="Page${page}" />'))
+            form.add_field(rbfields.Input('<input name="__EVENTTARGET" value="_sectionLayoutContainer$ctl01$_resultGrid" />'))
             form.fields.pop('_sectionLayoutContainer$ctl01$_searchButton')
             br.submit_form(form)
