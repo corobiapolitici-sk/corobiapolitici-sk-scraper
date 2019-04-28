@@ -14,7 +14,7 @@ class Processing:
         self.db = db
         self.conf = conf
         self.name = str(self.__class__).split("'")[1]
-        self.target_name = utils.camel2snake(self.name.split('.')[-1])
+        self.target_name = utils.camel_to_snake(self.name.split('.')[-1])
         self.target_collection = storage.MongoCollection(self.db, self.target_name)
         self.log = logging.getLogger(self.name)
         self.batch_process = True
@@ -79,8 +79,7 @@ class NodesHlasovanie(Nodes):
         self.node_name = const.NODE_NAME_HLASOVANIE
 
     def entry_generator(self):
-        source_collection = utils.get_collection(
-            const.CONF_MONGO_HLASOVANIE, self.conf, const.CONF_MONGO_PARSED, self.db)
+        source_collection = storage.MongoCollection(self.db, 'parsed_hlasovanie')
         for entry in source_collection.iterate_all():
             del entry[const.MONGO_TIMESTAMP]
             del entry[const.HLASOVANIE_INDIVIDUALNE]
@@ -92,7 +91,7 @@ class NodesPoslanec(Nodes):
         self.node_name = const.NODE_NAME_POSLANEC
 
     def entry_generator(self):
-        source_collection = utils.get_collection(const.CONF_MONGO_POSLANEC, self.conf, const.CONF_MONGO_PARSED, self.db)
+        source_collection = storage.MongoCollection(self.db, 'parsed_poslanec')
         for entry in source_collection.iterate_all():
             del entry[const.POSLANEC_CLENSTVO]
             yield entry
@@ -103,7 +102,7 @@ class NodesKlub(Nodes):
         self.node_name = const.NODE_NAME_KLUB
 
     def entry_generator(self):
-        source_collection = utils.get_collection(const.CONF_MONGO_HLASOVANIE, self.conf, const.CONF_MONGO_PARSED, self.db)
+        source_collection = storage.MongoCollection(self.db, 'parsed_hlasovanie')
         last_entry = source_collection.get({}, projection=[const.HLASOVANIE_INDIVIDUALNE], sort=[(const.MONGO_ID, -1)])
         hlasy = last_entry[const.HLASOVANIE_INDIVIDUALNE].values()
         kluby = [value[const.HLASOVANIE_KLUB] for value in hlasy]
@@ -119,8 +118,7 @@ class NodesVybor(Nodes):
         self.node_name = const.NODE_NAME_VYBOR
 
     def entry_generator(self):
-        source_collection = utils.get_collection(
-            const.CONF_MONGO_POSLANEC, self.conf, const.CONF_MONGO_PARSED, self.db)
+        source_collection = storage.MongoCollection(self.db, 'parsed_poslanec')
         orgs = set()
         for entry in source_collection.iterate_all():
             for org in entry[const.POSLANEC_CLENSTVO]:
@@ -135,7 +133,7 @@ class NodesDelegacia(Nodes):
         self.node_name = const.NODE_NAME_DELEGACIA
 
     def entry_generator(self):
-        source_collection = utils.get_collection(const.CONF_MONGO_POSLANEC, self.conf, const.CONF_MONGO_PARSED, self.db)
+        source_collection = storage.MongoCollection(self.db, 'parsed_poslanec')
         orgs = set()
         for entry in source_collection.iterate_all():
             for org in entry[const.POSLANEC_CLENSTVO]:
@@ -150,8 +148,7 @@ class NodesZakon(Nodes):
         self.node_name = const.NODE_NAME_ZAKON
 
     def entry_generator(self):
-        source_collection = utils.get_collection(
-            const.CONF_MONGO_ZAKON, self.conf, const.CONF_MONGO_PARSED, self.db)
+        source_collection = storage.MongoCollection(self.db, 'parsed_zakon')
         fields = [
             const.MONGO_ID,
             const.MONGO_TIMESTAMP,
@@ -186,8 +183,7 @@ class NodesZmena(Nodes):
         self.node_name = const.NODE_NAME_ZMENA
 
     def entry_generator(self):
-        source_collection = utils.get_collection(
-            const.CONF_MONGO_ZMENA, self.conf, const.CONF_MONGO_PARSED, self.db)
+        source_collection = storage.MongoCollection(self.db, 'parsed_zmena')
         for entry in source_collection.iterate_all():
             entry.pop(const.ZMENA_PODPISANI, None)
             entry.pop(const.ZMENA_DALSI, None)
@@ -200,8 +196,7 @@ class NodesRozprava(Nodes):
         self.node_name = const.NODE_NAME_ROZPRAVA
 
     def entry_generator(self):
-        source_collection = utils.get_collection(
-            const.CONF_MONGO_ROZPRAVA, self.conf, const.CONF_MONGO_PARSED, self.db)
+        source_collection = storage.MongoCollection(self.db, 'parsed_rozprava')
         pop_fields = [
             const.ROZPRAVA_TLAC, const.ROZPRAVA_POSLANEC_ID, const.ROZPRAVA_POSLANEC_PRIEZVISKO,
             const.ROZPRAVA_POSLANEC_MENO, const.ROZPRAVA_POSLANEC_KLUB,
@@ -254,14 +249,11 @@ class EdgesPoslanecKlubClen(Edges):
         self.ending_name = const.NODE_NAME_KLUB
 
     def entry_generator(self):
-        source_collection = utils.get_collection(
-            const.CONF_MONGO_HLASOVANIE, self.conf, const.CONF_MONGO_PARSED, self.db)
+        source_collection = storage.MongoCollection(self.db, 'parsed_hlasovanie')
         last_entry = source_collection.get({}, projection=[const.HLASOVANIE_INDIVIDUALNE],
             sort=[(const.MONGO_ID, -1)])
         aktivni_ids = [int(i) for i in last_entry[const.HLASOVANIE_INDIVIDUALNE].keys()]
-        source_collection = utils.get_collection(
-            const.CONF_MONGO_POSLANEC, self.conf, const.CONF_MONGO_PARSED, self.db
-        )
+        source_collection = storage.MongoCollection(self.db, 'parsed_poslanec')
         for entry in source_collection.iterate_all():
             if entry[const.MONGO_ID] in aktivni_ids:
                 klub = const.KLUB_NEZARADENI
@@ -286,9 +278,7 @@ class EdgesPoslanecVyborClen(Edges):
         self.ending_name = const.NODE_NAME_VYBOR
 
     def entry_generator(self):
-        source_collection = utils.get_collection(
-            const.CONF_MONGO_POSLANEC, self.conf, const.CONF_MONGO_PARSED, self.db
-        )
+        source_collection = storage.MongoCollection(self.db, 'parsed_poslanec')
         for entry in source_collection.iterate_all():
             for org, typ in entry[const.POSLANEC_CLENSTVO].items():
                 if const.POSLANEC_VYBOR.lower() in org.lower():
@@ -307,9 +297,7 @@ class EdgesPoslanecDelegaciaClen(Edges):
         self.ending_name = const.NODE_NAME_DELEGACIA
 
     def entry_generator(self):
-        source_collection = utils.get_collection(
-            const.CONF_MONGO_POSLANEC, self.conf, const.CONF_MONGO_PARSED, self.db
-        )
+        source_collection = storage.MongoCollection(self.db, 'parsed_poslanec')
         for entry in source_collection.iterate_all():
             for org, typ in entry[const.POSLANEC_CLENSTVO].items():
                 if const.POSLANEC_DELEGACIA.lower() in org.lower():
@@ -328,9 +316,7 @@ class EdgesPoslanecHlasovanieHlasoval(Edges):
         self.ending_name = const.NODE_NAME_HLASOVANIE
 
     def entry_generator(self):
-        source_collection = utils.get_collection(
-            const.CONF_MONGO_HLASOVANIE, self.conf, const.CONF_MONGO_PARSED, self.db
-        )
+        source_collection = storage.MongoCollection(self.db, 'parsed_hlasovanie')
         for entry in source_collection.iterate_all():
             for poslanec_id, poslanec in entry[const.HLASOVANIE_INDIVIDUALNE].items():
                 hlas = {
@@ -353,9 +339,7 @@ class EdgesVyborZakonNavrhnuty(Edges):
             entry[const.MONGO_ID]
             for entry in storage.MongoCollection(self.db, 'nodes_vybor').iterate_all()
         ]
-        source_collection = utils.get_collection(
-            const.CONF_MONGO_ZAKON, self.conf, const.CONF_MONGO_PARSED, self.db
-        )
+        source_collection = storage.MongoCollection(self.db, 'parsed_zakon')
         def result_form(entry, vybor, lehota):
             return  {
                 const.NEO4J_BEGINNING_ID: vybor,
@@ -396,9 +380,7 @@ class EdgesVyborZakonGestorsky(Edges):
         self.ending_name = const.NODE_NAME_ZAKON
 
     def entry_generator(self):
-        source_collection = utils.get_collection(
-            const.CONF_MONGO_ZAKON, self.conf, const.CONF_MONGO_PARSED, self.db
-        )
+        source_collection = storage.MongoCollection(self.db, 'parsed_zakon')
         for entry in source_collection.iterate_all():
             if const.ZAKON_GESTORSKY in entry:
                 yield {
@@ -428,10 +410,7 @@ class EdgesPoslanecZakonNavrhol(Edges):
         self.ending_name = const.NODE_NAME_ZAKON
 
     def entry_generator(self):
-        source_collection = utils.get_collection(
-            const.CONF_MONGO_LEGISLATIVNAINICIATIVA,
-            self.conf, const.CONF_MONGO_PARSED, self.db
-        )
+        source_collection = storage.MongoCollection(self.db, 'parsed_legislativnainiciativa')
         for entry in source_collection.iterate_all():
             for zakon_id in entry.get(const.PREDLOZILZAKON_LIST, {}):
                 yield {
@@ -447,9 +426,7 @@ class EdgesPoslanecKlubBolClenom(Edges):
         self.ending_name = const.NODE_NAME_KLUB
 
     def entry_generator(self):
-        source_collection = utils.get_collection(
-            const.CONF_MONGO_HLASOVANIE, self.conf, const.CONF_MONGO_PARSED, self.db
-        )
+        source_collection = storage.MongoCollection(self.db, 'parsed_hlasovanie')
         poslanci = {}
         for entry in source_collection.iterate_all():
             for poslanec_id in entry[const.HLASOVANIE_INDIVIDUALNE]:
@@ -474,9 +451,7 @@ class EdgesSpektrumZakonNavrhol(Edges):
         self.ending_name = const.NODE_NAME_ZAKON
 
     def entry_generator(self):
-        source_collection = utils.get_collection(
-            const.CONF_MONGO_ZAKON, self.conf, const.CONF_MONGO_PARSED, self.db
-        )
+        source_collection = storage.MongoCollection(self.db, 'parsed_zakon')
         col_navrh = storage.MongoCollection(self.db, 'edges_poslanec_zakon_navrhol') # TODO: fix collection naming
         col_klub = storage.MongoCollection(self.db, 'edges_poslanec_klub_bol_clenom')
         col_spektrum = storage.MongoCollection(self.db, 'edges_klub_spektrum_clen')
@@ -524,9 +499,7 @@ class EdgesHlasovanieZakonHlasovaloO(Edges):
         self.ending_name = const.NODE_NAME_ZAKON
 
     def entry_generator(self):
-        source_collection = utils.get_collection(
-            const.CONF_MONGO_HLASOVANIETLAC, self.conf, const.CONF_MONGO_PARSED, self.db
-        )
+        source_collection = storage.MongoCollection(self.db, 'parsed_hlasovanietlace')
         for entry in source_collection.iterate_all():
             for hlasovanie_id in entry.get(const.HLASOVANIETLAC_LIST, {}):
                 yield {
@@ -542,9 +515,7 @@ class EdgesPoslanecZmenaNavrhol(Edges):
         self.ending_name = const.NODE_NAME_ZMENA
 
     def entry_generator(self):
-        source_collection = utils.get_collection(
-            const.CONF_MONGO_ZMENA, self.conf, const.CONF_MONGO_PARSED, self.db
-        )
+        source_collection = storage.MongoCollection(self.db, 'parsed_zmena')
         for entry in source_collection.iterate_all():
             yield {
                 const.NEO4J_BEGINNING_ID: utils.get_poslanec_id(
@@ -567,9 +538,7 @@ class EdgesPoslanecZmenaPodpisal(Edges):
         self.ending_name = const.NODE_NAME_ZMENA
 
     def entry_generator(self):
-        source_collection = utils.get_collection(
-            const.CONF_MONGO_ZMENA, self.conf, const.CONF_MONGO_PARSED, self.db
-        )
+        source_collection = storage.MongoCollection(self.db, 'parsed_zmena')
         for entry in source_collection.iterate_all():
             for poslanec in entry.get(const.ZMENA_PODPISANI, []):
                 yield {
@@ -585,9 +554,7 @@ class EdgesZmenaZakonNavrhnuta(Edges):
         self.ending_name = const.NODE_NAME_ZAKON
 
     def entry_generator(self):
-        source_collection = utils.get_collection(
-            const.CONF_MONGO_ZAKON, self.conf, const.CONF_MONGO_PARSED, self.db
-        )
+        source_collection = storage.MongoCollection(self.db, 'parsed_zakon')
         for entry in source_collection.iterate_all():
             for zmena_id in entry.get(const.ZAKON_ZMENY, {}):
                 yield {
@@ -603,12 +570,8 @@ class EdgesHlasovanieZmenaHlasovaloO(Edges):
         self.ending_name = const.NODE_NAME_ZMENA
 
     def entry_generator(self):
-        col_zakon = utils.get_collection(
-            const.CONF_MONGO_ZAKON, self.conf, const.CONF_MONGO_PARSED, self.db
-        )
-        col_tlac = utils.get_collection(
-            const.CONF_MONGO_HLASOVANIETLAC, self.conf, const.CONF_MONGO_PARSED, self.db
-        )
+        col_zakon = storage.MongoCollection(self.db, 'parsed_zakon')
+        col_tlac = storage.MongoCollection(self.db, 'parsed_hlasovanietlace')
         for entry in col_zakon.iterate_all():
             zakon = col_tlac.get({const.MONGO_ID: entry[const.MONGO_ID]})
             hlasovania = zakon.get(const.HLASOVANIETLAC_LIST, {})
@@ -645,9 +608,7 @@ class EdgesPoslanecRozpravaVystupil(Edges):
         self.ending_name = const.NODE_NAME_ROZPRAVA
 
     def entry_generator(self):
-        source_collection = utils.get_collection(
-            const.CONF_MONGO_ROZPRAVA, self.conf, const.CONF_MONGO_PARSED, self.db
-        )
+        source_collection = storage.MongoCollection(self.db, 'parsed_rozprava')
         for entry in source_collection.iterate_all():
             for vystupenie in entry[const.ROZPRAVA_VYSTUPENIA]:
                 klub = vystupenie[const.ROZPRAVA_POSLANEC_KLUB]
@@ -667,9 +628,7 @@ class EdgesRozpravaZakonTykalaSa(Edges):
         self.ending_name = const.NODE_NAME_ZAKON
 
     def entry_generator(self):
-        source_collection = utils.get_collection(
-            const.CONF_MONGO_ROZPRAVA, self.conf, const.CONF_MONGO_PARSED, self.db
-        )
+        source_collection = storage.MongoCollection(self.db, 'parsed_rozprava')
         for entry in source_collection.iterate_all():
             for vystupenie in entry[const.ROZPRAVA_VYSTUPENIA]:
                 if const.ROZPRAVA_TLAC in vystupenie:

@@ -4,20 +4,9 @@
 
 # Mongo collections
 
-## Names
-CONF_MONGO_HLASOVANIE = 'hlasovanie'
-CONF_MONGO_POSLANEC = 'poslanec'
-CONF_MONGO_ZAKON = 'zakon'
-CONF_MONGO_LEGISLATIVNAINICIATIVA = 'legislativnainiciativa'
-CONF_MONGO_HLASOVANIETLAC = 'hlasovanietlace'
-CONF_MONGO_ZMENA = 'zmena'
-CONF_MONGO_ROZPRAVA = 'rozprava'
-
 ## Prefixes
-CONF_MONGO_RAW = 'raw'
 CONF_MONGO_NODES = 'nodes'
 CONF_MONGO_EDGES = 'edges'
-CONF_MONGO_PARSED = 'parsed'
 
 # Neo4j
 CONF_NEO4J = 'neo4j'
@@ -72,7 +61,6 @@ MONGO_URL = 'url'
 MONGO_HTML = 'html'
 MONGO_UNIQUE_ID = '_id'
 MONGO_BATCH_INSERT = 10000
-MONGO_PAGE = 'page'
 
 #########
 # Nodes #

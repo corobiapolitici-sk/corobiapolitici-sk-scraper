@@ -1,5 +1,6 @@
 # Load external modules.
 import logging
+import pymongo
 import time
 import yaml
 
@@ -10,84 +11,89 @@ import processing
 import scrape
 import storage
 
-def main_routine():
-    # Store the time at the beginning of the routine.
-    begin_time = time.time()
+if __name__ != '__main__':
+    exit()
 
-    # Load the configuration.
-    with open('config.yaml', 'r') as config_file:
-        config = yaml.safe_load(config_file)
+# Store the time at the beginning of the routine.
+begin_time = time.time()
 
-    # Set up the logging.
-    logging_config = config['logging']
-    logging.basicConfig(handlers=[logging.FileHandler(logging_config['filename'], 'w', 'utf-8')], level=logging_config['level'])
-    logger = logging.getLogger('Main')
+# Load the configuration.
+with open('config.yaml', 'r') as config_file:
+    config = yaml.safe_load(config_file)
 
-    db = storage.MongoDatabase(conf=config['mongo'])
-    """
-    scrape.Hlasovanie(db, config).store_all()
-    html_parser.Hlasovanie(db, config).parse_all()
-    logger.info(f'"Hlasovanie" elapsed time after scrape + parse: {time.time() - begin_time}')
+# Set up the logging.
+logging_config = config['logging']
+logging.basicConfig(handlers=[logging.FileHandler(logging_config['filename'], 'w', 'utf-8')], level=logging_config['level'])
+logger = logging.getLogger('Main')
 
-    scrape.Poslanec(db, config).store_all()
-    html_parser.Poslanec(db, config).parse_all()
-    logger.info(f'"Poslanec" elapsed time after scrape + parse: {time.time() - begin_time}')
+# Set up the mongo database client connection.
+mongo_config = config['mongo']
+mongo_client = pymongo.MongoClient(**mongo_config['client'])
+mongo_database = mongo_client[mongo_config['database']['name']]
+logging.getLogger('Mongo').info(f'MongoDatabase initialized with database "{mongo_config["database"]["name"]}".')
 
-    scrape.Zakon(db, config).store_all()
-    html_parser.Zakon(db, config).parse_all()
-    logger.info(f'"Zakon" elapsed time after scrape + parse: {time.time() - begin_time}')
+"""
+scrape.Hlasovanie(mongo_database, config).store_all()
+html_parser.Hlasovanie(mongo_database, config).parse_all()
+logger.info(f'"Hlasovanie" elapsed time after scrape + parse: {time.time() - begin_time}')
 
-    scrape.LegislativnaIniciativa(db, config).store_all()
-    html_parser.LegislativnaIniciativa(db, config).parse_all()
-    logger.info(f'"Legislativna Iniciativa" elapsed time after scrape + parse: {time.time() - begin_time}')
+scrape.Poslanec(mongo_database, config).store_all()
+html_parser.Poslanec(mongo_database, config).parse_all()
+logger.info(f'"Poslanec" elapsed time after scrape + parse: {time.time() - begin_time}')
 
-    scrape.HlasovanieTlace(db, config).store_all()
-    html_parser.HlasovanieTlace(db, config).parse_all()
-    logger.info(f'"Hlasovanie Tlace" elapsed time after scrape + parse: {time.time() - begin_time}')
+scrape.Zakon(mongo_database, config).store_all()
+html_parser.Zakon(mongo_database, config).parse_all()
+logger.info(f'"Zakon" elapsed time after scrape + parse: {time.time() - begin_time}')
 
-    scrape.Zmena(db, config).store_all()
-    html_parser.Zmena(db, config).parse_all()
-    logger.info(f'"Zmena" elapsed time after scrape + parse: {time.time() - begin_time}')
+scrape.LegislativnaIniciativa(mongo_database, config).store_all()
+html_parser.LegislativnaIniciativa(mongo_database, config).parse_all()
+logger.info(f'"Legislativna Iniciativa" elapsed time after scrape + parse: {time.time() - begin_time}')
 
-    scrape.Rozprava(db, config).store_all()
-    html_parser.Rozprava(db, config).parse_all()
-    logger.info(f'"Rozprava" elapsed time after scrape + parse: {time.time() - begin_time}')
-    """
-    processing.NodesHlasovanie(db, config).process_and_store_all()
-    processing.NodesPoslanec(db, config).process_and_store_all()
-    processing.NodesKlub(db, config).process_and_store_all()
-    processing.NodesVybor(db, config).process_and_store_all()
-    processing.NodesDelegacia(db, config).process_and_store_all()
-    processing.NodesZakon(db, config).process_and_store_all()
-    processing.NodesSpektrum(db, config).process_and_store_all()
-    processing.NodesZmena(db, config).process_and_store_all()
-    """
-    processing.NodesRozprava(db, config).process_and_store_all()
-    """
+scrape.HlasovanieTlace(mongo_database, config).store_all()
+html_parser.HlasovanieTlace(mongo_database, config).parse_all()
+logger.info(f'"Hlasovanie Tlace" elapsed time after scrape + parse: {time.time() - begin_time}')
 
-    logger.info(f'Total elapsed time after nodes insert: {time.time() - begin_time}')
+scrape.Zmena(mongo_database, config).store_all()
+html_parser.Zmena(mongo_database, config).parse_all()
+logger.info(f'"Zmena" elapsed time after scrape + parse: {time.time() - begin_time}')
+"""
 
-    processing.EdgesPoslanecKlubClen(db, config).process_and_store_all()
-    processing.EdgesPoslanecKlubBolClenom(db, config).process_and_store_all()
-    processing.EdgesPoslanecVyborClen(db, config).process_and_store_all()
-    processing.EdgesPoslanecDelegaciaClen(db, config).process_and_store_all()
-    processing.EdgesPoslanecHlasovanieHlasoval(db, config).process_and_store_all()
-    processing.EdgesVyborZakonNavrhnuty(db, config).process_and_store_all()
-    processing.EdgesVyborZakonGestorsky(db, config).process_and_store_all()
-    processing.EdgesPoslanecZakonNavrhol(db, config).process_and_store_all()
-    processing.EdgesKlubSpektrumClen(db, config).process_and_store_all()
-    processing.EdgesSpektrumZakonNavrhol(db, config).process_and_store_all()
-    processing.EdgesHlasovanieZakonHlasovaloO(db, config).process_and_store_all()
-    processing.EdgesPoslanecZmenaNavrhol(db, config).process_and_store_all()
-    processing.EdgesPoslanecZmenaPodpisal(db, config).process_and_store_all()
-    processing.EdgesZmenaZakonNavrhnuta(db, config).process_and_store_all()
-    processing.EdgesHlasovanieZmenaHlasovaloO(db, config).process_and_store_all()
-    """
-    processing.EdgesPoslanecRozpravaVystupil(db, config).process_and_store_all()
-    processing.EdgesRozpravaZakonTykalaSa(db, config).process_and_store_all()
-    """
+scrape.Rozprava(mongo_database, config).store_all()
+html_parser.Rozprava(mongo_database, config).parse_all()
+logger.info(f'"Rozprava" elapsed time after scrape + parse: {time.time() - begin_time}')
 
-    logger.info(f'Total elapsed time after edges insert: {time.time() - begin_time}')
+"""
+processing.NodesHlasovanie(mongo_database, config).process_and_store_all()
+processing.NodesPoslanec(mongo_database, config).process_and_store_all()
+processing.NodesKlub(mongo_database, config).process_and_store_all()
+processing.NodesVybor(mongo_database, config).process_and_store_all()
+processing.NodesDelegacia(mongo_database, config).process_and_store_all()
+processing.NodesZakon(mongo_database, config).process_and_store_all()
+processing.NodesSpektrum(mongo_database, config).process_and_store_all()
+processing.NodesZmena(mongo_database, config).process_and_store_all()
+processing.NodesRozprava(mongo_database, config).process_and_store_all()
 
-if __name__ == '__main__':
-    main_routine()
+logger.info(f'Total elapsed time after nodes insert: {time.time() - begin_time}')
+
+processing.EdgesPoslanecKlubClen(mongo_database, config).process_and_store_all()
+processing.EdgesPoslanecKlubBolClenom(mongo_database, config).process_and_store_all()
+processing.EdgesPoslanecVyborClen(mongo_database, config).process_and_store_all()
+processing.EdgesPoslanecDelegaciaClen(mongo_database, config).process_and_store_all()
+processing.EdgesPoslanecHlasovanieHlasoval(mongo_database, config).process_and_store_all()
+processing.EdgesVyborZakonNavrhnuty(mongo_database, config).process_and_store_all()
+processing.EdgesVyborZakonGestorsky(mongo_database, config).process_and_store_all()
+processing.EdgesPoslanecZakonNavrhol(mongo_database, config).process_and_store_all()
+processing.EdgesKlubSpektrumClen(mongo_database, config).process_and_store_all()
+processing.EdgesSpektrumZakonNavrhol(mongo_database, config).process_and_store_all()
+processing.EdgesHlasovanieZakonHlasovaloO(mongo_database, config).process_and_store_all()
+processing.EdgesPoslanecZmenaNavrhol(mongo_database, config).process_and_store_all()
+processing.EdgesPoslanecZmenaPodpisal(mongo_database, config).process_and_store_all()
+processing.EdgesZmenaZakonNavrhnuta(mongo_database, config).process_and_store_all()
+processing.EdgesHlasovanieZmenaHlasovaloO(mongo_database, config).process_and_store_all()
+processing.EdgesPoslanecRozpravaVystupil(mongo_database, config).process_and_store_all()
+processing.EdgesRozpravaZakonTykalaSa(mongo_database, config).process_and_store_all()
+
+logger.info(f'Total elapsed time after edges insert: {time.time() - begin_time}')
+"""
+
+mongo_client.close()

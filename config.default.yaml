@@ -3,9 +3,6 @@ mongo:
     port: ~
   database:
     name: "corobiapolitici"
-    collections:
-      raw: "raw"
-      parsed: "parsed"
 
 logging:
   level: "INFO"

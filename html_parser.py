@@ -1,5 +1,5 @@
 # Load external modules.
-from bs4 import BeautifulSoup
+import bs4
 from datetime import datetime, timedelta
 import logging
 
@@ -11,51 +11,53 @@ import utils
 class HTMLParser(utils.Logged):
     def __init__(self, db, conf):
         super().__init__()
-        self.db = db
-        self.conf = conf
-        self.source_collection = utils.get_collection(self, self.conf, const.CONF_MONGO_RAW, self.db)
-        self.target_collection = utils.get_collection(self, self.conf, const.CONF_MONGO_PARSED, self.db)
-        self.unique_ids = [const.MONGO_ID]
-
-    def get(self, query):
-        entry = self.source_collection.get(query)
-        if entry is None:
-            self.log.debug(f'No object satisfying query {str(query)} in collection {self.target_collection.name}')
-            return
-        if const.PARSE_ERROR_NOT_FOUND in entry[const.MONGO_HTML]:
-            self.log.debug(f'Object id {str(query)} corresponds to an empty page')
-            return
-        return entry
+        name = str(self.__class__).split("'")[1].split('.')[-1].lower()
+        self.source_collection = storage.MongoCollection(db, 'raw_' + name)
+        self.target_collection = storage.MongoCollection(db, 'parsed_' + name)
+        self.unique_ids = ['id']
 
     def extract_structure(self, entry):
         return entry
 
-    def store(self, data):
-        self.target_collection.update(data, self.unique_ids)
-
     def parse(self, query):
-        entry = self.get(query)
+        entry = self.source_collection.get(query)
         if entry is None:
+            self.log.debug(f'No object satisfying query {str(query)} in collection {self.target_collection.collection.name}')
             return
-        entry = self.extract_structure(entry)
-        if entry is None:
+        if const.PARSE_ERROR_NOT_FOUND in entry['html']:
+            self.log.debug(f'Object id {str(query)} corresponds to an empty page')
+            return
+
+        parsed_entry = self.extract_structure(entry)
+        if parsed_entry is None:
             self.log.debug(f'Entry {str(query)} has invalid structure.')
             return
-        self.store(entry)
+
+        self.target_collection.update(parsed_entry, self.unique_ids)
+
         self.log.debug(f'Entry {str(query)} parsed!')
 
     def parse_all(self):
         self.log.info('Parsing started.')
-        for i, entry in enumerate(self.source_collection.iterate_all()):
+
+        # For each item in the source collection.
+        for index, entry in enumerate(self.source_collection.iterate_all()):
+            # Find an entry in the target collection corresponding to the current entry using the type's unique ids.
             query = {unique_id: entry[unique_id] for unique_id in self.unique_ids}
-            target = self.target_collection.get(query, projection=[const.MONGO_TIMESTAMP])
-            if target is not None:
-                source_insert = self.source_collection.get(query, projection=[const.MONGO_TIMESTAMP])[const.MONGO_TIMESTAMP]
-                if source_insert < target[const.MONGO_TIMESTAMP]:
+            target_entry = self.target_collection.get(query, projection=['insertTime'])
+
+            # If a target entry is found, verify that the source entry's insert time is lesser than that of the target entry.
+            if target_entry is not None:
+                source_entry = self.source_collection.get(query, projection=['insertTime'])
+                if source_entry['insertTime'] < target_entry['insertTime']:
                     self.log.debug(f'Entry {str(query)} already parsed.')
                     continue
+
+            # Parse the entry.
             self.parse(query)
-            self.log.debug(f'Overall progress: {i + 1} items parsed!')
+
+            self.log.debug(f'Overall progress: {index + 1} items parsed!')
+
         self.log.info('Parsing finished!')
 
     def strip(self, s):
@@ -66,7 +68,7 @@ class HTMLParser(utils.Logged):
 
 class Hlasovanie(HTMLParser):
     def extract_structure(self, entry):
-        soup = BeautifulSoup(entry.pop(const.MONGO_HTML), features='lxml')
+        soup = bs4.BeautifulSoup(entry.pop('html'), features='lxml')
         try:
             first_box, second_box = soup('div', attrs={'class': 'voting_stats_summary_full'})
         except:
@@ -75,6 +77,7 @@ class Hlasovanie(HTMLParser):
         for item in first_box('div')[0].find('a')['href'].split('&')[1:-1]:
             tokens = item.split('=')
             entry[const.HLASOVANIE_URL_DICT[tokens[0]]] = int(tokens[1])
+
         time = first_box('div')[1].find('span').text.strip()
         entry[const.HLASOVANIE_CAS] = datetime.strptime(time, '%d. %m. %Y %H:%M')
         entry[const.HLASOVANIE_CISLO] = int(first_box('div')[2].find('span').text.strip())
@@ -102,18 +105,20 @@ class Hlasovanie(HTMLParser):
                         tokens = item.split('=')
                         poslanec[const.HLASOVANIE_POSLANEC_DICT[tokens[0]]] = int(tokens[1])
                     poslanec[const.HLASOVANIE_CELE_MENO] = info.text.strip()
-                    poslanec_id = poslanec.pop(const.MONGO_ID)
+                    poslanec_id = poslanec.pop('id')
                     entry[const.HLASOVANIE_INDIVIDUALNE][str(poslanec_id)] = poslanec
+
         return entry
 
 class Poslanec(HTMLParser):
     def extract_structure(self, entry):
-        soup = BeautifulSoup(entry.pop(const.MONGO_HTML), features='lxml')
+        soup = bs4.BeautifulSoup(entry.pop('html'), features='lxml')
         personal = soup.find('div', attrs={'class':'mp_personal_data'})
         for div in personal('div'):
             if div.find('strong') is not None:
                 key = div.find('strong').text.strip().lower()
                 entry[const.POSLANEC_INFO_DICT[key]] = div.find('span').text.strip()
+
         entry[const.POSLANEC_NARODENY] = datetime.strptime(entry[const.POSLANEC_NARODENY], '%d. %m. %Y')
         clenstvo = soup.find('span', attrs={'id': '_sectionLayoutContainer_ctl01_ctlClenstvoLabel'})
         entry[const.POSLANEC_CLENSTVO] = {}
@@ -126,11 +131,12 @@ class Poslanec(HTMLParser):
                 res = tokens[1].split(')')[0].strip().capitalize()
             entry[const.POSLANEC_CLENSTVO][tokens[0].strip()] = res
         entry[const.POSLANEC_FOTO] = soup.find('div', attrs={'class': 'mp_foto'}).find('img')['src']
+
         return entry
 
 class Zakon(HTMLParser):
     def extract_structure(self, entry):
-        soup = BeautifulSoup(entry.pop(const.MONGO_HTML), features='lxml')
+        soup = bs4.BeautifulSoup(entry.pop('html'), features='lxml')
         entry[const.ZAKON_POPIS] = self.strip(soup.find('h1'))
         main_soup = soup.find('div', attrs={'id': '_sectionLayoutContainer__panelContent'})
         missing_citanie1 = 'I. čítanie' not in [s.text.strip() for s in main_soup('h2')]
@@ -182,7 +188,7 @@ class Zakon(HTMLParser):
 
 class LegislativnaIniciativa(HTMLParser):
     def extract_structure(self, entry):
-        soup = BeautifulSoup(entry.pop(const.MONGO_HTML), features='lxml')
+        soup = bs4.BeautifulSoup(entry.pop('html'), features='lxml')
         entry[const.PREDLOZILZAKON_LIST] = {}
         table = soup.find('table', attrs={'class': 'tab_zoznam paginated sortable'})
         if table is None:
@@ -201,7 +207,7 @@ class LegislativnaIniciativa(HTMLParser):
 
 class HlasovanieTlace(HTMLParser):
     def extract_structure(self, entry):
-        soup = BeautifulSoup(entry.pop(const.MONGO_HTML), features='lxml')
+        soup = bs4.BeautifulSoup(entry.pop('html'), features='lxml')
         entry[const.HLASOVANIETLAC_LIST] = {}
         table = soup.find('table', attrs={'class': 'tab_zoznam'})
         if table is None:
@@ -225,7 +231,7 @@ class HlasovanieTlace(HTMLParser):
 
 class Zmena(HTMLParser):
     def extract_structure(self, entry):
-        soup = BeautifulSoup(entry.pop(const.MONGO_HTML), features='lxml')
+        soup = bs4.BeautifulSoup(entry.pop('html'), features='lxml')
         divs = [div for div in soup.find('div', attrs={'class': 'change_request_details'})('div') if div['class'] != ['clear']]
         for div in divs:
             title = const.ZMENA_DICT[div.find('strong').text.strip()]
@@ -253,10 +259,10 @@ class Zmena(HTMLParser):
 class Rozprava(HTMLParser):
     def __init__(self, db, conf):
         super().__init__(db, conf)
-        self.unique_ids = [const.MONGO_ID, const.MONGO_PAGE]
+        self.unique_ids = ['id', 'page']
 
     def extract_structure(self, entry):
-        soup = BeautifulSoup(entry.pop(const.MONGO_HTML), features='lxml')
+        soup = bs4.BeautifulSoup(entry.pop('html'), features='lxml')
         table = soup.find('table', attrs={'class': 'tab_zoznam'})
         if table is None:
             return

@@ -11,21 +11,11 @@ class Logged:
     def __init__(self):
         self.log = logging.getLogger(str(self.__class__).split("'")[1])
 
-def get_collection(obj, conf, stage, db):
-    conf_collections = conf['mongo']['database']['collections']
-    prefix = conf_collections[stage]
-    if isinstance(obj, str):
-        suffix = obj
-    else:
-        suffix = str(obj.__class__).split("'")[1].split('.')[-1].lower()
-    name = '_'.join([prefix, suffix])
-    return storage.MongoCollection(db, name)
-
 def camel_case_split(identifier):
     matches = re.finditer('.+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)', identifier)
     return [m.group(0) for m in matches]
 
-def camel2snake(identifier):
+def camel_to_snake(identifier):
     return '_'.join([s.lower() for s in camel_case_split(identifier)])
 
 def parse_datetime_csv(date):

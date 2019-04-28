@@ -4,31 +4,16 @@ import logging
 from neo4j.v1 import GraphDatabase
 import os
 import pandas as pd
-from pymongo import MongoClient
 import yaml
 
 # Load internal modules.
 import constants as const
 import utils
 
-class MongoDatabase:
-    def __init__(self, conf):
-        self.conf = conf
-        self.client = MongoClient(**self.conf['client'])
-        self.name = self.conf['database']['name']
-        self.database = self.client[self.name]
-        self.log = logging.getLogger('Mongo')
-        self.log.info(f'MongoDatabase initialized with database "{self.name}".')
-
-    def close(self):
-        self.client.close()
-
 class MongoCollection:
     def __init__(self, db, collection):
-        self.db = db
-        self.name = collection
-        self.collection = self.db.database[self.name]
-        self.log = logging.getLogger(f'Mongo-{self.name}')
+        self.collection = db[collection]
+        self.log = logging.getLogger(f'Mongo-{collection}')
         self.log.debug('MongoCollection initialized.')
 
     def insert(self, data):
@@ -45,11 +30,8 @@ class MongoCollection:
     def update(self, data, keys):
         if isinstance(keys, str):
             keys = [keys]
-        for key in keys:
-            if key not in data:
-                self.log.error(f'The key {key} is not in data.')
-                return
-        query = {key: data[key] for key in keys}
+
+        query = { key: data[key] for key in keys }
         dups = list(self.collection.find(query))
         if dups:
             if len(dups) > 1:
@@ -83,9 +65,9 @@ class MongoCollection:
         return self.get(query) is not None
 
     def iterate_all(self):
-        unique_ids = self.get_all_attribute(const.MONGO_UNIQUE_ID)
+        unique_ids = self.get_all_attribute('_id')
         for unique_id in unique_ids:
-            yield self.get({const.MONGO_UNIQUE_ID: unique_id})
+            yield self.get({ '_id': unique_id })
 
 class Neo4jDatabase:
     def __init__(self, conf):
