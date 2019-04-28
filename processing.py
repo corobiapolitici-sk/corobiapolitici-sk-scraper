@@ -270,6 +270,31 @@ class EdgesPoslanecKlubClen(Edges):
                 }
                 yield result
 
+class EdgesPoslanecKlubBolClenom(Edges):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.edge_name = const.EDGE_NAME_BOL_CLEN
+        self.beginning_name = const.NODE_NAME_POSLANEC
+        self.ending_name = const.NODE_NAME_KLUB
+
+    def entry_generator(self):
+        source_collection = storage.MongoCollection(self.db, 'parsed_hlasovanie')
+        poslanci = {}
+        for entry in source_collection.iterate_all():
+            for poslanec_id in entry[const.HLASOVANIE_INDIVIDUALNE]:
+                if poslanec_id in poslanci:
+                    if poslanci[poslanec_id][const.CLEN_NAPOSLEDY] > entry[const.HLASOVANIE_CAS]:
+                        continue
+                values = {
+                    const.NEO4J_BEGINNING_ID: int(poslanec_id),
+                    const.NEO4J_ENDING_ID: utils.parse_klub(entry[const.HLASOVANIE_INDIVIDUALNE][
+                        poslanec_id][const.HLASOVANIE_KLUB]),
+                    const.CLEN_NAPOSLEDY: entry[const.HLASOVANIE_CAS]
+                }
+                poslanci[poslanec_id] = values
+        for entry in poslanci.values():
+            yield entry
+
 class EdgesPoslanecVyborClen(Edges):
     def __init__(self, *args):
         super().__init__(*args)
@@ -388,20 +413,6 @@ class EdgesVyborZakonGestorsky(Edges):
                     const.NEO4J_ENDING_ID: entry[const.MONGO_ID]
                 }
 
-class EdgesKlubSpektrumClen(Edges):
-    def __init__(self, *args):
-        super().__init__(*args)
-        self.edge_name = const.EDGE_NAME_CLEN
-        self.beginning_name = const.NODE_NAME_KLUB
-        self.ending_name = const.NODE_NAME_SPEKTRUM
-
-    def entry_generator(self):
-        for klub, spektrum in const.SPEKTRUM_CLEN.items():
-            yield {
-                const.NEO4J_BEGINNING_ID: klub,
-                const.NEO4J_ENDING_ID: spektrum
-            }
-
 class EdgesPoslanecZakonNavrhol(Edges):
     def __init__(self, *args):
         super().__init__(*args)
@@ -418,30 +429,19 @@ class EdgesPoslanecZakonNavrhol(Edges):
                     const.NEO4J_ENDING_ID: int(zakon_id)
                 }
 
-class EdgesPoslanecKlubBolClenom(Edges):
+class EdgesKlubSpektrumClen(Edges):
     def __init__(self, *args):
         super().__init__(*args)
-        self.edge_name = const.EDGE_NAME_BOL_CLEN
-        self.beginning_name = const.NODE_NAME_POSLANEC
-        self.ending_name = const.NODE_NAME_KLUB
+        self.edge_name = const.EDGE_NAME_CLEN
+        self.beginning_name = const.NODE_NAME_KLUB
+        self.ending_name = const.NODE_NAME_SPEKTRUM
 
     def entry_generator(self):
-        source_collection = storage.MongoCollection(self.db, 'parsed_hlasovanie')
-        poslanci = {}
-        for entry in source_collection.iterate_all():
-            for poslanec_id in entry[const.HLASOVANIE_INDIVIDUALNE]:
-                if poslanec_id in poslanci:
-                    if poslanci[poslanec_id][const.CLEN_NAPOSLEDY] > entry[const.HLASOVANIE_CAS]:
-                        continue
-                values = {
-                    const.NEO4J_BEGINNING_ID: int(poslanec_id),
-                    const.NEO4J_ENDING_ID: utils.parse_klub(entry[const.HLASOVANIE_INDIVIDUALNE][
-                        poslanec_id][const.HLASOVANIE_KLUB]),
-                    const.CLEN_NAPOSLEDY: entry[const.HLASOVANIE_CAS]
-                }
-                poslanci[poslanec_id] = values
-        for entry in poslanci.values():
-            yield entry
+        for klub, spektrum in const.SPEKTRUM_CLEN.items():
+            yield {
+                const.NEO4J_BEGINNING_ID: klub,
+                const.NEO4J_ENDING_ID: spektrum
+            }
 
 class EdgesSpektrumZakonNavrhol(Edges):
     def __init__(self, *args):
