@@ -32,7 +32,6 @@ mongo_client = pymongo.MongoClient(**mongo_config['client'])
 mongo_database = mongo_client[mongo_config['database']['name']]
 logging.getLogger('Mongo').info(f'MongoDatabase initialized with database "{mongo_config["database"]["name"]}".')
 
-"""
 scrape.Hlasovanie(mongo_database, config).store_all()
 html_parser.Hlasovanie(mongo_database, config).parse_all()
 logger.info(f'"Hlasovanie" elapsed time after scrape + parse: {time.time() - begin_time}')
@@ -56,13 +55,11 @@ logger.info(f'"Hlasovanie Tlace" elapsed time after scrape + parse: {time.time()
 scrape.Zmena(mongo_database, config).store_all()
 html_parser.Zmena(mongo_database, config).parse_all()
 logger.info(f'"Zmena" elapsed time after scrape + parse: {time.time() - begin_time}')
-"""
 
 scrape.Rozprava(mongo_database, config).store_all()
 html_parser.Rozprava(mongo_database, config).parse_all()
 logger.info(f'"Rozprava" elapsed time after scrape + parse: {time.time() - begin_time}')
 
-"""
 processing.NodesHlasovanie(mongo_database, config).process_and_store_all()
 processing.NodesPoslanec(mongo_database, config).process_and_store_all()
 processing.NodesKlub(mongo_database, config).process_and_store_all()
@@ -94,6 +91,5 @@ processing.EdgesPoslanecRozpravaVystupil(mongo_database, config).process_and_sto
 processing.EdgesRozpravaZakonTykalaSa(mongo_database, config).process_and_store_all()
 
 logger.info(f'Total elapsed time after edges insert: {time.time() - begin_time}')
-"""
 
 mongo_client.close()
