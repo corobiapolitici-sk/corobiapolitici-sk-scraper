@@ -1,10 +1,11 @@
-# IDE
+# Development files.
 .vscode/.ropeproject
-.vscode/settings.json
+.mypy_cache
 
-# Runtime
+# Runtime files.
 __pycache__
+.venv
 
-# Project
-corobiapolitici.log
+# Project configuration files.
 config.yaml
+corobiapolitici.log

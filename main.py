@@ -12,7 +12,7 @@ import scrape
 import storage
 
 if __name__ != '__main__':
-    exit()
+    exit(-1)
 
 # Store the time at the beginning of the routine.
 begin_time = time.time()

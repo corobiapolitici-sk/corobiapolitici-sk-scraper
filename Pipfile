@@ -4,18 +4,19 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+mypy = "*"
 pylint = "*"
 rope = "*"
 
 [packages]
-requests = "*"
-pyyaml = "*"
-neo4j = "*"
-pandas = "*"
 bs4 = "*"
-numpy = "*"
-pymongo = "*"
 lxml = "*"
+neo4j = "*"
+numpy = "*"
+pandas = "*"
+pymongo = "*"
+pyyaml = "*"
+requests = "*"
 robobrowser = "*"
 
 [requires]
